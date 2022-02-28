@@ -1,0 +1,7 @@
+# Visual Studio
+.vs
+*vcxproj.filters
+*vcxproj.user
+
+# Build
+build
