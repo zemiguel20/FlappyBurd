@@ -16,7 +16,6 @@ Game::Game(GameSettings set)
 	}
 
 	//Create Window
-	window = nullptr;
 	window = SDL_CreateWindow("FlappyBurd",
 		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 		settings.screenWidth, settings.screenHeight,
@@ -27,11 +26,20 @@ Game::Game(GameSettings set)
 		throw;
 	}
 
+	//Initialize 2D renderer
+	renderer = SDL_CreateRenderer((SDL_Window*)window, -1, SDL_RENDERER_ACCELERATED);
+	if (renderer == nullptr)
+	{
+		std::cout << "Failed to initialize renderer: " << SDL_GetError() << std::endl;
+		throw;
+	}
+
 	running = true;
 }
 
 Game::~Game()
 {
+	SDL_DestroyRenderer((SDL_Renderer*)renderer);
 	SDL_DestroyWindow((SDL_Window*)window);
 	SDL_Quit();
 }
@@ -63,5 +71,11 @@ void Game::Run()
 			}
 		}
 
+		//Clear buffer
+		SDL_SetRenderDrawColor((SDL_Renderer*)renderer, 0, 0, 0, 255);
+		SDL_RenderClear((SDL_Renderer*)renderer);
+
+		//Swap buffers
+		SDL_RenderPresent((SDL_Renderer*)renderer);
 	}
 }

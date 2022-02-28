@@ -28,6 +28,9 @@ private:
 	/* Pointer to the game window object */
 	void* window;
 
+	/* Pointer to renderer object */
+	void* renderer;
+
 	/* Tells if the game loop should be running. */
 	bool running;
 
