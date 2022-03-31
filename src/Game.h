@@ -1,12 +1,9 @@
 #pragma once
 
+#define SDL_MAIN_HANDLED
 #include <SDL.h>
 
-struct GameSettings
-{
-	unsigned int screenWidth;
-	unsigned int screenHeight;
-};
+#include "Window.h"
 
 /* @brief Game represented as an object. This class takes care of initializing the game
 * and running the main loop.
@@ -15,8 +12,8 @@ struct GameSettings
 class Game
 {
 private:
-	/* Pointer to the game window object */
-	SDL_Window* m_window;
+
+	Window m_window;
 
 	/* Pointer to renderer object */
 	SDL_Renderer* m_renderer;
@@ -24,14 +21,12 @@ private:
 	/* Tells if the game loop should be running. */
 	bool m_running;
 
-	GameSettings m_settings;
-
 public:
 	/* Initializes core systems. Only one instance shouls be created.
 	*
 	* @param set - game settings.
 	*/
-	Game(GameSettings set);
+	Game();
 	~Game();
 
 	/* @brief Runs the game loop while 'running' is set to true.

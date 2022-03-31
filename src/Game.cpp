@@ -1,13 +1,14 @@
 #include "Game.h"
 
-#include <SDL.h>
 #include <iostream>
 
-Game::Game(GameSettings set)
-{
-	//Store settings
-	m_settings = set;
+#include "Sprite.h"
 
+#define SCREEN_WIDTH   256
+#define SCREEN_HEIGHT  455
+
+Game::Game()
+{
 	// Initialize SDL sub-processes
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
@@ -15,21 +16,11 @@ Game::Game(GameSettings set)
 		throw;
 	}
 
-	//Create Window
-	m_window = SDL_CreateWindow(
-		"FlappyBurd",
-		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-		m_settings.screenWidth, m_settings.screenHeight,
-		0
-	);
-	if (m_window == nullptr)
-	{
-		std::cout << "Failed to create window: " << SDL_GetError() << std::endl;
-		throw;
-	}
+	//Init Window
+	m_window.Init("FlappyBurd", SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	//Initialize 2D renderer
-	m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED);
+	m_renderer = SDL_CreateRenderer(m_window.GetNativeWindow(), -1, SDL_RENDERER_ACCELERATED);
 	if (m_renderer == nullptr)
 	{
 		std::cout << "Failed to initialize renderer: " << SDL_GetError() << std::endl;
@@ -42,12 +33,18 @@ Game::Game(GameSettings set)
 Game::~Game()
 {
 	SDL_DestroyRenderer(m_renderer);
-	SDL_DestroyWindow(m_window);
+
 	SDL_Quit();
 }
 
 void Game::Run()
 {
+	//Load bird sprite
+	Sprite birdSprite(m_renderer, "res/burd.png");
+
+	//Load background
+	Sprite bgSprite(m_renderer, "res/background-day.png");
+
 	//Game loop
 	while (m_running)
 	{
@@ -56,6 +53,21 @@ void Game::Run()
 		//Clear buffer
 		SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
 		SDL_RenderClear(m_renderer);
+
+		SDL_Rect texrect;
+		//Draw background
+		texrect.x = 0;
+		texrect.y = 0;
+		texrect.w = bgSprite.GetWidth() * 0.5;
+		texrect.h = bgSprite.GetHeight() * 0.5;
+		SDL_RenderCopy(m_renderer, bgSprite.GetTexture(), NULL, &texrect);
+
+		//Draw bird in center
+		texrect.x = (m_window.GetWidth() - birdSprite.GetWidth()) / 2;
+		texrect.y = (m_window.GetHeight() - birdSprite.GetHeight()) / 2;
+		texrect.w = birdSprite.GetWidth();
+		texrect.h = birdSprite.GetHeight();
+		SDL_RenderCopy(m_renderer, birdSprite.GetTexture(), NULL, &texrect);
 
 		//Swap buffers
 		SDL_RenderPresent(m_renderer);

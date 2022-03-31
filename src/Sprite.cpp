@@ -22,3 +22,8 @@ int Sprite::GetHeight()
 {
 	return m_height;
 }
+
+SDL_Texture* Sprite::GetTexture()
+{
+	return m_tex;
+}
