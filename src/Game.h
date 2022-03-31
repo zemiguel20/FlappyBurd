@@ -1,5 +1,7 @@
 #pragma once
 
+#include <SDL.h>
+
 struct GameSettings
 {
 	unsigned int screenWidth;
@@ -12,6 +14,18 @@ struct GameSettings
 */
 class Game
 {
+private:
+	/* Pointer to the game window object */
+	SDL_Window* m_window;
+
+	/* Pointer to renderer object */
+	SDL_Renderer* m_renderer;
+
+	/* Tells if the game loop should be running. */
+	bool m_running;
+
+	GameSettings m_settings;
+
 public:
 	/* Initializes core systems. Only one instance shouls be created.
 	*
@@ -25,16 +39,6 @@ public:
 	void Run();
 
 private:
-	/* Pointer to the game window object */
-	void* window;
-
-	/* Pointer to renderer object */
-	void* renderer;
-
-	/* Tells if the game loop should be running. */
-	bool running;
-
-	GameSettings settings;
-
+	void ProcessEventQueue();
 };
 

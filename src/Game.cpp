@@ -6,7 +6,7 @@
 Game::Game(GameSettings set)
 {
 	//Store settings
-	settings = set;
+	m_settings = set;
 
 	// Initialize SDL sub-processes
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
@@ -16,66 +16,72 @@ Game::Game(GameSettings set)
 	}
 
 	//Create Window
-	window = SDL_CreateWindow("FlappyBurd",
+	m_window = SDL_CreateWindow(
+		"FlappyBurd",
 		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-		settings.screenWidth, settings.screenHeight,
-		0);
-	if (window == nullptr)
+		m_settings.screenWidth, m_settings.screenHeight,
+		0
+	);
+	if (m_window == nullptr)
 	{
 		std::cout << "Failed to create window: " << SDL_GetError() << std::endl;
 		throw;
 	}
 
 	//Initialize 2D renderer
-	renderer = SDL_CreateRenderer((SDL_Window*)window, -1, SDL_RENDERER_ACCELERATED);
-	if (renderer == nullptr)
+	m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED);
+	if (m_renderer == nullptr)
 	{
 		std::cout << "Failed to initialize renderer: " << SDL_GetError() << std::endl;
 		throw;
 	}
 
-	running = true;
+	m_running = true;
 }
 
 Game::~Game()
 {
-	SDL_DestroyRenderer((SDL_Renderer*)renderer);
-	SDL_DestroyWindow((SDL_Window*)window);
+	SDL_DestroyRenderer(m_renderer);
+	SDL_DestroyWindow(m_window);
 	SDL_Quit();
 }
 
 void Game::Run()
 {
 	//Game loop
-	while (running)
+	while (m_running)
 	{
-		//Process event queue
-		SDL_Event event;
-		while (SDL_PollEvent(&event))
-		{
-			//If Escape pressed, close window
-			if (event.type == SDL_KEYDOWN)
-			{
-				if (event.key.keysym.sym == SDLK_ESCAPE)
-				{
-					running = false;
-				}
-			}
-			//If Window closed using window menu
-			else if (event.type == SDL_WINDOWEVENT)
-			{
-				if (event.window.event == SDL_WINDOWEVENT_CLOSE)
-				{
-					running = false;
-				}
-			}
-		}
+		ProcessEventQueue();
 
 		//Clear buffer
-		SDL_SetRenderDrawColor((SDL_Renderer*)renderer, 0, 0, 0, 255);
-		SDL_RenderClear((SDL_Renderer*)renderer);
+		SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
+		SDL_RenderClear(m_renderer);
 
 		//Swap buffers
-		SDL_RenderPresent((SDL_Renderer*)renderer);
+		SDL_RenderPresent(m_renderer);
+	}
+}
+
+void Game::ProcessEventQueue()
+{
+	SDL_Event event;
+	while (SDL_PollEvent(&event))
+	{
+		//If Escape pressed, close window
+		if (event.type == SDL_KEYDOWN)
+		{
+			if (event.key.keysym.sym == SDLK_ESCAPE)
+			{
+				m_running = false;
+			}
+		}
+		//If Window closed using window menu
+		else if (event.type == SDL_WINDOWEVENT)
+		{
+			if (event.window.event == SDL_WINDOWEVENT_CLOSE)
+			{
+				m_running = false;
+			}
+		}
 	}
 }
