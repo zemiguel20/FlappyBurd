@@ -47,9 +47,9 @@ void Game::Run()
 		m_renderer.ClearBuffer();
 
 		//Draw background
-		m_renderer.RenderSprite(bgSprite, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 0.5);
+		m_renderer.RenderSprite(bgSprite, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 0.45);
 		//Draw bird in center
-		m_renderer.RenderSprite(birdSprite, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 1);
+		m_renderer.RenderSprite(birdSprite, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 2);
 
 		m_renderer.SwapBuffers();
 	}

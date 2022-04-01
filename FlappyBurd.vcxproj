@@ -47,11 +47,13 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)build\$(Configuration)-$(Platform)\bin\</OutDir>
     <IntDir>$(SolutionDir)build\$(Configuration)-$(Platform)\intermediates\</IntDir>
+    <CopyLocalDeploymentContent>true</CopyLocalDeploymentContent>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)build\$(Configuration)-$(Platform)\bin\</OutDir>
     <IntDir>$(SolutionDir)build\$(Configuration)-$(Platform)\intermediates\</IntDir>
+    <CopyLocalDeploymentContent>true</CopyLocalDeploymentContent>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -105,6 +107,29 @@
     <ClInclude Include="src\Sprite.h" />
     <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\Window.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\background-day.png">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
+    <Image Include="res\background-dusk.png">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
+    <Image Include="res\background-morning.png">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
+    <Image Include="res\background-night.png">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
+    <Image Include="res\burd.png">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
+    <Image Include="res\dirtsprite.png">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
+    <Image Include="res\log.png">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
