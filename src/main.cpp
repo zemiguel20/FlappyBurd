@@ -1,3 +1,4 @@
+#define SDL_MAIN_HANDLED //This solves conflict with SDL definition of main
 #include "Game.h"
 #include <iostream>
 
