@@ -13,9 +13,9 @@ Renderer::~Renderer()
 	SDL_DestroyRenderer(m_context);
 }
 
-void Renderer::Init(Window& win)
+void Renderer::Init(SDL_Window* nativeWin)
 {
-	m_context = SDL_CreateRenderer(win.GetNativeWindow(), -1, SDL_RENDERER_ACCELERATED);
+	m_context = SDL_CreateRenderer(nativeWin, -1, SDL_RENDERER_ACCELERATED);
 	if (m_context == nullptr)
 	{
 		std::stringstream msg;

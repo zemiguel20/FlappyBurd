@@ -19,15 +19,16 @@ Game::Game()
 		throw msg.str();
 	}
 
-	m_window.Init("FlappyBurd", SCREEN_WIDTH, SCREEN_HEIGHT);
+	Window::Init("FlappyBurd", SCREEN_WIDTH, SCREEN_HEIGHT);
 
-	m_renderer.Init(m_window);
+	m_renderer.Init(Window::GetNativeWindow());
 
 	m_running = true;
 }
 
 Game::~Game()
 {
+	Window::Destroy();
 	SDL_Quit();
 }
 

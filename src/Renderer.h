@@ -1,7 +1,6 @@
 #pragma once
 
 #include <SDL.h>
-#include "Window.h"
 #include "Sprite.h"
 
 class Renderer
@@ -12,7 +11,7 @@ public:
 	Renderer();
 	~Renderer();
 
-	void Init(Window& win);
+	void Init(SDL_Window* nativeWin);
 	void ClearBuffer();
 	void SwapBuffers();
 

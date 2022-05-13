@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Window.h"
+#include "core/Window.h"
 #include "Renderer.h"
 
 /* @brief Game represented as an object. This class takes care of initializing the game
@@ -11,7 +11,6 @@ class Game
 {
 private:
 
-	Window m_window;
 	Renderer m_renderer;
 	bool m_running; //Tells if the game loop should be running
 
