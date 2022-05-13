@@ -9,6 +9,12 @@ Window* Window::instance = nullptr;
 
 void Window::Init(const char* name, int width, int height)
 {
+	if (instance != nullptr)
+	{
+		std::cout << "Window already initialized. Action skipped." << std::endl;
+		return;
+	}
+
 	instance = new Window;
 
 	instance->nativeWin = SDL_CreateWindow(name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, 0);
