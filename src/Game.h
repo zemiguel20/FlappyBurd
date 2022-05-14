@@ -1,8 +1,5 @@
 #pragma once
 
-#include "core/Window.h"
-#include "Renderer.h"
-
 /* @brief Game represented as an object. This class takes care of initializing the game
 * and running the main loop.
 * Only one instance should be created.
@@ -11,7 +8,6 @@ class Game
 {
 private:
 
-	Renderer m_renderer;
 	bool m_running; //Tells if the game loop should be running
 
 public:

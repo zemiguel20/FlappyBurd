@@ -1,6 +1,8 @@
 #include "Game.h"
 
 #include <SDL.h>
+#include "core/Window.h"
+#include "core/Renderer.h"
 #include "ResourceLoader.h"
 
 #include <iostream>
@@ -21,13 +23,14 @@ Game::Game()
 
 	Window::Init("FlappyBurd", SCREEN_WIDTH, SCREEN_HEIGHT);
 
-	m_renderer.Init(Window::GetNativeWindow());
+	Renderer::Init(Window::GetNativeWindow());
 
 	m_running = true;
 }
 
 Game::~Game()
 {
+	Renderer::Destroy();
 	Window::Destroy();
 	SDL_Quit();
 }
@@ -35,24 +38,24 @@ Game::~Game()
 void Game::Run()
 {
 	//Load bird sprite
-	Sprite birdSprite = ResourceLoader::LoadSprite(m_renderer, "res/burd.png");
+	Sprite birdSprite = ResourceLoader::LoadSprite("res/burd.png");
 
 	//Load background
-	Sprite bgSprite = ResourceLoader::LoadSprite(m_renderer, "res/background-day.png");
+	Sprite bgSprite = ResourceLoader::LoadSprite("res/background-day.png");
 
 	//Game loop
 	while (m_running)
 	{
 		ProcessEventQueue();
 
-		m_renderer.ClearBuffer();
+		Renderer::ClearBuffer();
 
 		//Draw background
-		m_renderer.RenderSprite(bgSprite, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 0.45);
+		Renderer::RenderSprite(bgSprite, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 0.45);
 		//Draw bird in center
-		m_renderer.RenderSprite(birdSprite, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 2);
+		Renderer::RenderSprite(birdSprite, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 2);
 
-		m_renderer.SwapBuffers();
+		Renderer::SwapBuffers();
 	}
 }
 

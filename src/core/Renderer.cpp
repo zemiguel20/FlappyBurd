@@ -3,20 +3,24 @@
 #include <sstream>
 #include <iostream>
 
-Renderer::Renderer()
-{
-	m_context = nullptr;
-}
-
-Renderer::~Renderer()
-{
-	SDL_DestroyRenderer(m_context);
-}
+Renderer* Renderer::instance = nullptr;
 
 void Renderer::Init(SDL_Window* nativeWin)
 {
-	m_context = SDL_CreateRenderer(nativeWin, -1, SDL_RENDERER_ACCELERATED);
-	if (m_context == nullptr)
+	if (instance != nullptr)
+	{
+		std::cout
+			<< "Renderer already initialized. Skipping action."
+			<< std::endl;
+		return;
+	}
+
+	instance = new Renderer;
+
+	instance->m_context =
+		SDL_CreateRenderer(nativeWin, -1, SDL_RENDERER_ACCELERATED);
+
+	if (instance->m_context == nullptr)
 	{
 		std::stringstream msg;
 		msg << "ERROR: Failed to initialize renderer: " << SDL_GetError();
@@ -24,15 +28,21 @@ void Renderer::Init(SDL_Window* nativeWin)
 	}
 }
 
+void Renderer::Destroy()
+{
+	SDL_DestroyRenderer(instance->m_context);
+	delete instance;
+}
+
 void Renderer::ClearBuffer()
 {
-	SDL_SetRenderDrawColor(m_context, 0, 0, 0, 255);
-	SDL_RenderClear(m_context);
+	SDL_SetRenderDrawColor(instance->m_context, 0, 0, 0, 255);
+	SDL_RenderClear(instance->m_context);
 }
 
 void Renderer::SwapBuffers()
 {
-	SDL_RenderPresent(m_context);
+	SDL_RenderPresent(instance->m_context);
 }
 
 void Renderer::RenderSprite(Sprite& sprite, float x, float y, float scale)
@@ -48,10 +58,10 @@ void Renderer::RenderSprite(Sprite& sprite, float x, float y, float scale)
 	texrect.y = y - (texrect.h / 2);
 
 	//Render to buffer
-	SDL_RenderCopy(m_context, sprite.GetTexture(), NULL, &texrect);
+	SDL_RenderCopy(instance->m_context, sprite.GetTexture(), NULL, &texrect);
 }
 
 SDL_Renderer* Renderer::GetRenderContext()
 {
-	return m_context;
+	return instance->m_context;
 }
