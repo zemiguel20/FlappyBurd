@@ -1,10 +1,10 @@
 #include "Sprite.h"
 
-Sprite::Sprite(SDL_Texture* texture, int width, int height)
+Sprite::Sprite(SDL_Texture* texture)
 {
 	m_tex = texture;
-	m_width = width;
-	m_height = height;
+	// get the width and height of the texture
+	SDL_QueryTexture(m_tex, NULL, NULL, &m_width, &m_height);
 }
 
 Sprite::~Sprite()

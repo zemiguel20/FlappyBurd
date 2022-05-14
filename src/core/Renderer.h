@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SDL.h>
-#include "../Sprite.h"
+#include "Sprite.h"
 
 /* @brief Static 2D renderer class.
 * Interface to manage a static renderer instance.

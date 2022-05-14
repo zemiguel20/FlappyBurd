@@ -9,7 +9,7 @@ private:
 	int m_width, m_height;
 
 public:
-	Sprite(SDL_Texture* texture, int width, int height);
+	Sprite(SDL_Texture* texture);
 	~Sprite();
 
 	int GetWidth();
