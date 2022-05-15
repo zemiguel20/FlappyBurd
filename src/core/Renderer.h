@@ -4,12 +4,11 @@
 #include "Sprite.h"
 
 /* @brief Static 2D renderer class.
-* Interface to manage a static renderer instance.
 */
 class Renderer
 {
 private:
-	static Renderer* instance;
+	static SDL_Renderer* s_context;
 
 public:
 	/* @brief Initializes the renderer static instance.
@@ -35,9 +34,5 @@ public:
 	static void RenderSprite(Sprite* sprite, float x, float y, float scale);
 
 	static SDL_Renderer* GetRenderContext();
-
-	/* Renderer properties */
-private:
-	SDL_Renderer* m_context;
 };
 
