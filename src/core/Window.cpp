@@ -5,20 +5,31 @@
 
 #include <SDL.h>
 
-Window* Window::instance = nullptr;
+SDL_Window* Window::s_nativeWin = nullptr;
 
 void Window::Init(const char* name, int width, int height)
 {
-	if (instance != nullptr)
+	// Skip if window already initialized
+	if (s_nativeWin != nullptr)
 	{
-		std::cout << "Window already initialized. Action skipped." << std::endl;
+		std::cout
+			<< "Window already initialized. Action skipped."
+			<< std::endl;
 		return;
 	}
 
-	instance = new Window;
+	// Initialize window
+	s_nativeWin = SDL_CreateWindow(
+		name,
+		SDL_WINDOWPOS_UNDEFINED,
+		SDL_WINDOWPOS_UNDEFINED,
+		width,
+		height,
+		0
+	);
 
-	instance->nativeWin = SDL_CreateWindow(name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, 0);
-	if (instance->nativeWin == nullptr)
+	// If error initializing window, throw error
+	if (s_nativeWin == nullptr)
 	{
 		std::stringstream msg;
 		msg << "ERROR: Failed to create window: " << SDL_GetError();
@@ -28,11 +39,10 @@ void Window::Init(const char* name, int width, int height)
 
 void Window::Destroy()
 {
-	SDL_DestroyWindow(instance->nativeWin);
-	delete instance;
+	SDL_DestroyWindow(s_nativeWin);
 }
 
 SDL_Window* Window::GetNativeWindow()
 {
-	return instance->nativeWin;
+	return s_nativeWin;
 }
