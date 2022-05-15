@@ -3,7 +3,7 @@
 #include <SDL.h>
 #include "core/Window.h"
 #include "core/Renderer.h"
-#include "ResourceLoader.h"
+#include "core/ResourceLoader.h"
 
 #include <iostream>
 #include <sstream>
@@ -25,11 +25,14 @@ Game::Game()
 
 	Renderer::Init(Window::GetNativeWindow());
 
+	ResourceLoader::Init(Renderer::GetRenderContext());
+
 	m_running = true;
 }
 
 Game::~Game()
 {
+	ResourceLoader::Destroy();
 	Renderer::Destroy();
 	Window::Destroy();
 	SDL_Quit();
@@ -38,10 +41,10 @@ Game::~Game()
 void Game::Run()
 {
 	//Load bird sprite
-	Sprite birdSprite = ResourceLoader::LoadSprite("res/burd.png");
+	Sprite* birdSprite = ResourceLoader::LoadSprite("burd.png");
 
 	//Load background
-	Sprite bgSprite = ResourceLoader::LoadSprite("res/background-day.png");
+	Sprite* bgSprite = ResourceLoader::LoadSprite("background-day.png");
 
 	//Game loop
 	while (m_running)

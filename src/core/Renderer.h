@@ -32,7 +32,7 @@ public:
 	static void SwapBuffers();
 
 	//TODO: add proper transform
-	static void RenderSprite(Sprite& sprite, float x, float y, float scale);
+	static void RenderSprite(Sprite* sprite, float x, float y, float scale);
 
 	static SDL_Renderer* GetRenderContext();
 
