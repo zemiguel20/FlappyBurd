@@ -3,6 +3,7 @@
 #include <SDL.h>
 #include "core/Window.h"
 #include "core/Renderer.h"
+#include "core/GameObject.h"
 
 #include <iostream>
 #include <sstream>
@@ -36,22 +37,31 @@ Game::~Game()
 
 void Game::Run()
 {
-	//Load bird sprite
+	//Create Bird
 	Sprite birdSprite("res/burd.png", Renderer::GetRenderContext());
+	Transform birdTransform(vec2(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f), 0.0f, 2.0f);
+	GameObject bird(birdTransform, &birdSprite);
 	//Load background
 	Sprite bgSprite("res/background-day.png", Renderer::GetRenderContext());
+	Transform bgTransform(vec2(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f), 0.0f, 0.45f);
+	GameObject bg(bgTransform, &bgSprite);
+
 
 	//Game loop
 	while (m_running)
 	{
 		ProcessEventQueue();
 
+		//Logic
+		bird.transform.rotation = bird.transform.rotation >= 360.0f ? 0 : (bird.transform.rotation + 1.0f);
+
+		//Render
 		Renderer::ClearBuffer();
 
 		//Draw background
-		Renderer::RenderSprite(&bgSprite, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 0.45);
+		Renderer::RenderSprite(bg.sprite, bg.transform.position, bg.transform.rotation, bg.transform.scale);
 		//Draw bird in center
-		Renderer::RenderSprite(&birdSprite, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 2);
+		Renderer::RenderSprite(bird.sprite, bird.transform.position, bird.transform.rotation, bird.transform.scale);
 
 		Renderer::SwapBuffers();
 	}

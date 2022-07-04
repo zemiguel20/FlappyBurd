@@ -44,20 +44,20 @@ void Renderer::SwapBuffers()
 	SDL_RenderPresent(s_context);
 }
 
-void Renderer::RenderSprite(Sprite* sprite, float x, float y, float scale)
+void Renderer::RenderSprite(Sprite* sprite, vec2 position, float rotation, float scale)
 {
+	float frameW = (float)sprite->GetWidth() * scale;
+	float frameH = (float)sprite->GetHeight() * scale;
+	vec2 frameOrigin; //Frame origin top left corner, not center
+	frameOrigin.x = position.x - frameW * 0.5f;
+	frameOrigin.y = position.y - frameH * 0.5f;
 	SDL_Rect texrect;
-
-	//Set img size with scale
-	texrect.w = sprite->GetWidth() * scale;
-	texrect.h = sprite->GetHeight() * scale;
-
-	//Rect origin is img top left corner, subtract half img size for center
-	texrect.x = x - (texrect.w / 2);
-	texrect.y = y - (texrect.h / 2);
-
+	texrect.w = (int)frameW;
+	texrect.h = (int)frameH;
+	texrect.x = frameOrigin.x;
+	texrect.y = frameOrigin.y;
 	//Render to buffer
-	SDL_RenderCopy(s_context, sprite->GetTexture(), NULL, &texrect);
+	SDL_RenderCopyEx(s_context, sprite->GetTexture(), NULL, &texrect, rotation, NULL, SDL_FLIP_NONE);
 }
 
 SDL_Renderer* Renderer::GetRenderContext()

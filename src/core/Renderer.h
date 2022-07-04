@@ -2,6 +2,7 @@
 
 #include <SDL.h>
 #include "Sprite.h"
+#include "Math.h"
 
 /* @brief Static 2D renderer class.
 */
@@ -30,8 +31,7 @@ public:
 	/* @brief Swap front and back render buffers. */
 	static void SwapBuffers();
 
-	//TODO: add proper transform
-	static void RenderSprite(Sprite* sprite, float x, float y, float scale);
+	static void RenderSprite(Sprite* sprite, vec2 position, float rotation, float scale);
 
 	static SDL_Renderer* GetRenderContext();
 };
