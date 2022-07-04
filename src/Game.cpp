@@ -5,6 +5,7 @@
 #include "core/Renderer.h"
 #include "core/GameObject.h"
 
+#include <chrono>
 #include <iostream>
 #include <sstream>
 
@@ -46,14 +47,24 @@ void Game::Run()
 	Transform bgTransform(vec2(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f), 0.0f, 0.45f);
 	GameObject bg(bgTransform, &bgSprite);
 
+	// Delta time count init
+	float DELTA_TIME = 0.0f; //Fraction of second
+	auto start = std::chrono::high_resolution_clock::now();
 
 	//Game loop
 	while (m_running)
 	{
+		//DELTA TIME UPDATE
+		SDL_Delay(1); //Guarantees non zero
+		auto end = std::chrono::high_resolution_clock::now();
+		auto a = end - start;
+		DELTA_TIME = std::chrono::duration<float>(end - start).count();
+		start = end;
+
 		ProcessEventQueue();
 
 		//Logic
-		bird.transform.rotation = bird.transform.rotation >= 360.0f ? 0 : (bird.transform.rotation + 1.0f);
+		bird.transform.rotation = bird.transform.rotation >= 360.0f ? 0 : (bird.transform.rotation + 360.0f * DELTA_TIME);
 
 		//Render
 		Renderer::ClearBuffer();
