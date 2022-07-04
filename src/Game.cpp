@@ -3,7 +3,6 @@
 #include <SDL.h>
 #include "core/Window.h"
 #include "core/Renderer.h"
-#include "core/ResourceLoader.h"
 
 #include <iostream>
 #include <sstream>
@@ -25,14 +24,11 @@ Game::Game()
 
 	Renderer::Init(Window::GetNativeWindow());
 
-	ResourceLoader::Init(Renderer::GetRenderContext());
-
 	m_running = true;
 }
 
 Game::~Game()
 {
-	ResourceLoader::Destroy();
 	Renderer::Destroy();
 	Window::Destroy();
 	SDL_Quit();
@@ -41,10 +37,9 @@ Game::~Game()
 void Game::Run()
 {
 	//Load bird sprite
-	Sprite* birdSprite = ResourceLoader::LoadSprite("burd.png");
-
+	Sprite birdSprite("res/burd.png", Renderer::GetRenderContext());
 	//Load background
-	Sprite* bgSprite = ResourceLoader::LoadSprite("background-day.png");
+	Sprite bgSprite("res/background-day.png", Renderer::GetRenderContext());
 
 	//Game loop
 	while (m_running)
@@ -54,9 +49,9 @@ void Game::Run()
 		Renderer::ClearBuffer();
 
 		//Draw background
-		Renderer::RenderSprite(bgSprite, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 0.45);
+		Renderer::RenderSprite(&bgSprite, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 0.45);
 		//Draw bird in center
-		Renderer::RenderSprite(birdSprite, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 2);
+		Renderer::RenderSprite(&birdSprite, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 2);
 
 		Renderer::SwapBuffers();
 	}

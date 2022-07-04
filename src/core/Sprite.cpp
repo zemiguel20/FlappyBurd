@@ -1,8 +1,10 @@
 #include "Sprite.h"
 
-Sprite::Sprite(SDL_Texture* texture)
+#include <SDL_image.h>
+
+Sprite::Sprite(const std::string& filename, SDL_Renderer* renderContext)
 {
-	m_tex = texture;
+	m_tex = IMG_LoadTexture(renderContext, filename.c_str());
 	// get the width and height of the texture
 	SDL_QueryTexture(m_tex, NULL, NULL, &m_width, &m_height);
 }
