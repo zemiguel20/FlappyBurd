@@ -44,20 +44,27 @@ void Renderer::SwapBuffers()
 	SDL_RenderPresent(s_context);
 }
 
-void Renderer::RenderSprite(Sprite* sprite, vec2 position, float rotation, float scale)
+void Renderer::RenderSprite(Sprite* sprite, const Transform& tf, const Camera& camera)
 {
-	float frameW = (float)sprite->GetWidth() * scale;
-	float frameH = (float)sprite->GetHeight() * scale;
-	vec2 frameOrigin; //Frame origin top left corner, not center
-	frameOrigin.x = position.x - frameW * 0.5f;
-	frameOrigin.y = position.y - frameH * 0.5f;
+	//Get Frame Coords in World Space
+	vec2 frameSize(sprite->GetWidth(), sprite->GetHeight());
+	frameSize *= tf.scale;
+	vec2 halfFrameSize = frameSize * 0.5f;
+	vec2 frameOrigin(tf.position.x - halfFrameSize.x, tf.position.y + halfFrameSize.y); //Frame origin top left corner, not center
+	vec2 frameEndCorner(tf.position.x + halfFrameSize.x, tf.position.y - halfFrameSize.y); //bottom-right corner
+
+	//Convert to Viewport Space
+	frameOrigin = camera.WorldToViewportPoint(frameOrigin);
+	frameEndCorner = camera.WorldToViewportPoint(frameEndCorner);
+
+	//Render frame
 	SDL_Rect texrect;
-	texrect.w = (int)frameW;
-	texrect.h = (int)frameH;
-	texrect.x = frameOrigin.x;
-	texrect.y = frameOrigin.y;
+	texrect.w = (int)(frameEndCorner.x - frameOrigin.x);
+	texrect.h = (int)(frameEndCorner.y - frameOrigin.y);
+	texrect.x = (int)frameOrigin.x;
+	texrect.y = (int)frameOrigin.y;
 	//Render to buffer
-	SDL_RenderCopyEx(s_context, sprite->GetTexture(), NULL, &texrect, rotation, NULL, SDL_FLIP_NONE);
+	SDL_RenderCopyEx(s_context, sprite->GetTexture(), NULL, &texrect, tf.rotation, NULL, SDL_FLIP_NONE);
 }
 
 SDL_Renderer* Renderer::GetRenderContext()

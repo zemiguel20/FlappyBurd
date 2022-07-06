@@ -2,6 +2,8 @@
 
 #include <SDL.h>
 #include "Sprite.h"
+#include "Transform.h"
+#include "Camera.h"
 #include "Math.h"
 
 /* @brief Static 2D renderer class.
@@ -10,7 +12,6 @@ class Renderer
 {
 private:
 	static SDL_Renderer* s_context;
-
 public:
 	/* @brief Initializes the renderer static instance.
 	* Should be called once at the start.
@@ -31,7 +32,7 @@ public:
 	/* @brief Swap front and back render buffers. */
 	static void SwapBuffers();
 
-	static void RenderSprite(Sprite* sprite, vec2 position, float rotation, float scale);
+	static void RenderSprite(Sprite* sprite, const Transform& tf, const Camera& camera);
 
 	static SDL_Renderer* GetRenderContext();
 };

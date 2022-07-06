@@ -3,6 +3,7 @@
 #include <SDL.h>
 #include "core/Window.h"
 #include "core/Renderer.h"
+#include "core/Camera.h"
 #include "core/GameObject.h"
 
 #include <chrono>
@@ -11,6 +12,8 @@
 
 #define SCREEN_WIDTH   256
 #define SCREEN_HEIGHT  455
+
+static bool space_pressed = false;
 
 Game::Game()
 {
@@ -40,12 +43,15 @@ void Game::Run()
 {
 	//Create Bird
 	Sprite birdSprite("res/burd.png", Renderer::GetRenderContext());
-	Transform birdTransform(vec2(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f), 0.0f, 2.0f);
+	Transform birdTransform(vec2(0.0f, 0.0f), 0.0f, 3.0f);
 	GameObject bird(birdTransform, &birdSprite);
 	//Load background
 	Sprite bgSprite("res/background-day.png", Renderer::GetRenderContext());
-	Transform bgTransform(vec2(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f), 0.0f, 0.45f);
+	Transform bgTransform(vec2(0.0f, 0.0f), 0.0f, 1.0f);
 	GameObject bg(bgTransform, &bgSprite);
+
+	//Create Camera
+	Camera cam;
 
 	// Delta time count init
 	float DELTA_TIME = 0.0f; //Fraction of second
@@ -63,16 +69,29 @@ void Game::Run()
 
 		ProcessEventQueue();
 
+		cam.UpdateViewportTransform();
+
 		//Logic
+
+		if (space_pressed)
+		{
+			bird.velocity = vec2(0, 500);
+			space_pressed = false;
+		}
+		bird.velocity += vec2(0, -1200) * DELTA_TIME;
+
+		bird.transform.position += bird.velocity * DELTA_TIME;
+		//std::cout << bird.transform.position << std::endl;
+
 		bird.transform.rotation = bird.transform.rotation >= 360.0f ? 0 : (bird.transform.rotation + 360.0f * DELTA_TIME);
 
 		//Render
 		Renderer::ClearBuffer();
 
 		//Draw background
-		Renderer::RenderSprite(bg.sprite, bg.transform.position, bg.transform.rotation, bg.transform.scale);
+		Renderer::RenderSprite(bg.sprite, bg.transform, cam);
 		//Draw bird in center
-		Renderer::RenderSprite(bird.sprite, bird.transform.position, bird.transform.rotation, bird.transform.scale);
+		Renderer::RenderSprite(bird.sprite, bird.transform, cam);
 
 		Renderer::SwapBuffers();
 	}
@@ -87,17 +106,15 @@ void Game::ProcessEventQueue()
 		if (event.type == SDL_KEYDOWN)
 		{
 			if (event.key.keysym.sym == SDLK_ESCAPE)
-			{
 				m_running = false;
-			}
+			else if (event.key.keysym.sym == SDLK_SPACE)
+				space_pressed = true;
 		}
 		//If Window closed using window menu
 		else if (event.type == SDL_WINDOWEVENT)
 		{
 			if (event.window.event == SDL_WINDOWEVENT_CLOSE)
-			{
 				m_running = false;
-			}
 		}
 	}
 }
