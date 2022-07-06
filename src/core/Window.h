@@ -20,4 +20,8 @@ public:
 	static void Destroy();
 
 	static SDL_Window* GetNativeWindow();
+
+	static int GetWidth();
+	static int GetHeight();
+	static float GetAspectRatio();
 };

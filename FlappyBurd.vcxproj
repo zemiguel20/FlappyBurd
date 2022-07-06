@@ -94,6 +94,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\core\Camera.cpp" />
     <ClCompile Include="src\core\GameObject.cpp" />
     <ClCompile Include="src\core\Renderer.cpp" />
     <ClCompile Include="src\core\Sprite.cpp" />
@@ -102,8 +103,10 @@
     <ClCompile Include="src\core\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\core\Camera.h" />
     <ClInclude Include="src\core\GameObject.h" />
     <ClInclude Include="src\core\Math.h" />
+    <ClInclude Include="src\core\Transform.h" />
     <ClInclude Include="src\core\Window.h" />
     <ClInclude Include="src\core\Renderer.h" />
     <ClInclude Include="src\core\Sprite.h" />

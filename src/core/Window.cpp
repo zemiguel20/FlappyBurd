@@ -46,3 +46,24 @@ SDL_Window* Window::GetNativeWindow()
 {
 	return s_nativeWin;
 }
+
+int Window::GetWidth()
+{
+	int winW;
+	SDL_GetWindowSize(s_nativeWin, &winW, NULL);
+	return winW;
+}
+
+int Window::GetHeight()
+{
+	int winH;
+	SDL_GetWindowSize(s_nativeWin, NULL, &winH);
+	return winH;
+}
+
+float Window::GetAspectRatio()
+{
+	int winW, winH;
+	SDL_GetWindowSize(s_nativeWin, &winW, &winH);
+	return (float)winW / (float)winH;
+}
