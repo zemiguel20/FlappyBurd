@@ -8,10 +8,13 @@ class GameObject
 {
 public:
 	Transform transform;
+
 	Sprite* sprite;
+	int zind;
+
 	vec2 velocity;
 
-	GameObject(Transform& transform, Sprite* sprite);
+	GameObject(vec2 position, float rotation, float scale, Sprite* sprite, int zind);
 	~GameObject();
 };
 

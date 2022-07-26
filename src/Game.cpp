@@ -9,11 +9,14 @@
 #include <chrono>
 #include <iostream>
 #include <sstream>
+#include <vector>
 
 #define SCREEN_WIDTH   256
 #define SCREEN_HEIGHT  455
 
 static bool space_pressed = false;
+
+static Renderer* renderer = nullptr;
 
 Game::Game()
 {
@@ -27,28 +30,30 @@ Game::Game()
 
 	Window::Init("FlappyBurd", SCREEN_WIDTH, SCREEN_HEIGHT);
 
-	Renderer::Init(Window::GetNativeWindow());
+	renderer = new Renderer(Window::GetNativeWindow());
 
 	m_running = true;
 }
 
 Game::~Game()
 {
-	Renderer::Destroy();
+	delete renderer;
 	Window::Destroy();
 	SDL_Quit();
 }
 
 void Game::Run()
 {
-	//Create Bird
-	Sprite birdSprite("res/burd.png", Renderer::GetRenderContext());
-	Transform birdTransform(vec2(0.0f, 0.0f), 0.0f, 3.0f);
-	GameObject bird(birdTransform, &birdSprite);
-	//Load background
-	Sprite bgSprite("res/background-day.png", Renderer::GetRenderContext());
-	Transform bgTransform(vec2(0.0f, 0.0f), 0.0f, 1.0f);
-	GameObject bg(bgTransform, &bgSprite);
+	//Load sprites
+	Sprite birdSprite("res/burd.png", renderer->GetRenderContext());
+	Sprite bgSprite("res/background-day.png", renderer->GetRenderContext());
+
+	//Load game objects
+	std::vector<GameObject*> sceneObjects;
+	GameObject bird(vec2(0.0f, 0.0f), 0.0f, 3.0f, &birdSprite, 1);
+	sceneObjects.push_back(&bird);
+	GameObject bg(vec2(0.0f, 0.0f), 0.0f, 1.0f, &bgSprite, 0);
+	sceneObjects.push_back(&bg);
 
 	//Create Camera
 	Camera cam;
@@ -86,14 +91,11 @@ void Game::Run()
 		bird.transform.rotation = bird.transform.rotation >= 360.0f ? 0 : (bird.transform.rotation + 360.0f * DELTA_TIME);
 
 		//Render
-		Renderer::ClearBuffer();
-
-		//Draw background
-		Renderer::RenderSprite(bg.sprite, bg.transform, cam);
-		//Draw bird in center
-		Renderer::RenderSprite(bird.sprite, bird.transform, cam);
-
-		Renderer::SwapBuffers();
+		for (GameObject* obj : sceneObjects)
+		{
+			renderer->EnqueueSprite(obj->sprite, obj->transform, obj->zind);
+		}
+		renderer->Render(cam);
 	}
 }
 

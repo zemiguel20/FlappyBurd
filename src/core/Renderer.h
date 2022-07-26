@@ -6,34 +6,26 @@
 #include "Camera.h"
 #include "Math.h"
 
-/* @brief Static 2D renderer class.
-*/
+#include <vector>
+#include <tuple>
+
 class Renderer
 {
 private:
-	static SDL_Renderer* s_context;
+	SDL_Renderer* m_context;
+	std::vector<std::tuple<Sprite*, const Transform*, int>>* m_renderQueue;
 public:
-	/* @brief Initializes the renderer static instance.
-	* Should be called once at the start.
+	/* @brief Should be called once at the start.
 	* Make sure target window is initialized first.
 	*
 	* @param nativeWin - window render target
 	*/
-	static void Init(SDL_Window* nativeWin);
+	Renderer(SDL_Window* nativeWin);
+	~Renderer();
 
-	/* @brief Destroys renderer and cleanup.
-	* Should be called at the end.
-	*/
-	static void Destroy();
+	SDL_Renderer* GetRenderContext();
 
-	/* @brief Clears render buffer by overriding with black color. */
-	static void ClearBuffer();
-
-	/* @brief Swap front and back render buffers. */
-	static void SwapBuffers();
-
-	static void RenderSprite(Sprite* sprite, const Transform& tf, const Camera& camera);
-
-	static SDL_Renderer* GetRenderContext();
+	void EnqueueSprite(Sprite* sprite, const Transform& tf, int zind);
+	void Render(const Camera& camera);
 };
 
