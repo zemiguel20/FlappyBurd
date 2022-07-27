@@ -69,15 +69,28 @@ static void Update()
 	cam->UpdateViewportTransform();
 
 	GameObject* bird = (*sceneObjects)[0];
+	
+	//Bird movement
 	if (space_pressed)
 	{
 		bird->velocity = vec2(0, 500);
 		space_pressed = false;
 	}
 	bird->velocity += vec2(0, -1200) * DELTA_TIME;
-
 	bird->transform.position += bird->velocity * DELTA_TIME;
-	//std::cout << bird.transform.position << std::endl;
+
+	//Keep bird within screen limits
+	float limit = 490.0f;
+	if (bird->transform.position.y > limit)
+	{
+		bird->transform.position.y = limit;
+		bird->velocity = vec2();
+	}
+	else if (bird->transform.position.y < -limit)
+	{
+		bird->transform.position.y = -limit;
+		bird->velocity = vec2();
+	}
 
 	bird->transform.rotation = bird->transform.rotation >= 360.0f ? 0 : (bird->transform.rotation + 360.0f * DELTA_TIME);
 
