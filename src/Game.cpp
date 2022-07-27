@@ -14,9 +14,13 @@
 #define SCREEN_WIDTH   256
 #define SCREEN_HEIGHT  455
 
-static bool space_pressed = false;
-
+static bool running = false;
 static Renderer* renderer = nullptr;
+static float DELTA_TIME = 0.0f;
+static std::vector<GameObject*>* sceneObjects = nullptr;
+static std::vector<Sprite*>* sprites = nullptr;
+static Camera* cam = nullptr;
+static bool space_pressed = false;
 
 Game::Game()
 {
@@ -31,8 +35,6 @@ Game::Game()
 	Window::Init("FlappyBurd", SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	renderer = new Renderer(Window::GetNativeWindow());
-
-	m_running = true;
 }
 
 Game::~Game()
@@ -42,28 +44,98 @@ Game::~Game()
 	SDL_Quit();
 }
 
-void Game::Run()
+// Initialize game variables
+static void Start()
 {
 	//Load sprites
-	Sprite birdSprite("res/burd.png", renderer->GetRenderContext());
-	Sprite bgSprite("res/background-day.png", renderer->GetRenderContext());
+	sprites = new std::vector<Sprite*>;
+	sprites->push_back(new Sprite("res/burd.png", renderer->GetRenderContext()));
+	sprites->push_back(new Sprite("res/background-day.png", renderer->GetRenderContext()));
+	sprites->push_back(new Sprite("res/dirtsprite.png", renderer->GetRenderContext()));
 
 	//Load game objects
-	std::vector<GameObject*> sceneObjects;
-	GameObject bird(vec2(0.0f, 0.0f), 0.0f, 3.0f, &birdSprite, 1);
-	sceneObjects.push_back(&bird);
-	GameObject bg(vec2(0.0f, 0.0f), 0.0f, 1.0f, &bgSprite, 0);
-	sceneObjects.push_back(&bg);
+	sceneObjects = new std::vector<GameObject*>;
+	sceneObjects->push_back(new GameObject(vec2(0.0f, 0.0f), 0.0f, 3.0f, (*sprites)[0], 3)); //Bird
+	sceneObjects->push_back(new GameObject(vec2(0.0f, 0.0f), 0.0f, 1.0f, (*sprites)[1], 0)); //Background
+	sceneObjects->push_back(new GameObject(vec2(0.0f, -450.0f), 0.0f, 3.0f, (*sprites)[2], 1)); //Ground
 
-	//Create Camera
-	Camera cam;
+	cam = new Camera;
 
-	// Delta time count init
-	float DELTA_TIME = 0.0f; //Fraction of second
+	DELTA_TIME = 0.0f;
+}
+
+static void Update()
+{
+	cam->UpdateViewportTransform();
+
+	GameObject* bird = (*sceneObjects)[0];
+	if (space_pressed)
+	{
+		bird->velocity = vec2(0, 500);
+		space_pressed = false;
+	}
+	bird->velocity += vec2(0, -1200) * DELTA_TIME;
+
+	bird->transform.position += bird->velocity * DELTA_TIME;
+	//std::cout << bird.transform.position << std::endl;
+
+	bird->transform.rotation = bird->transform.rotation >= 360.0f ? 0 : (bird->transform.rotation + 360.0f * DELTA_TIME);
+
+}
+
+// Destroy game variables
+static void Destroy()
+{
+	delete cam;
+
+	for (Sprite* sprite : *sprites)
+		delete sprite;
+	delete sprites;
+
+	for (GameObject* obj : *sceneObjects)
+		delete obj;
+	delete sceneObjects;
+}
+
+static void Render()
+{
+	for (GameObject* obj : *sceneObjects)
+	{
+		renderer->EnqueueSprite(obj->sprite, obj->transform, obj->zind);
+	}
+	renderer->Render(*cam);
+}
+
+static void ProcessEventQueue()
+{
+	SDL_Event event;
+	while (SDL_PollEvent(&event))
+	{
+		//If Escape pressed, close window
+		if (event.type == SDL_KEYDOWN)
+		{
+			if (event.key.keysym.sym == SDLK_ESCAPE)
+				running = false;
+			else if (event.key.keysym.sym == SDLK_SPACE)
+				space_pressed = true;
+		}
+		//If Window closed using window menu
+		else if (event.type == SDL_WINDOWEVENT)
+		{
+			if (event.window.event == SDL_WINDOWEVENT_CLOSE)
+				running = false;
+		}
+	}
+}
+
+void Game::Run()
+{
+	running = true;
+
+	Start();
+
 	auto start = std::chrono::high_resolution_clock::now();
-
-	//Game loop
-	while (m_running)
+	while (running)
 	{
 		//DELTA TIME UPDATE
 		SDL_Delay(1); //Guarantees non zero
@@ -74,49 +146,10 @@ void Game::Run()
 
 		ProcessEventQueue();
 
-		cam.UpdateViewportTransform();
+		Update();
 
-		//Logic
-
-		if (space_pressed)
-		{
-			bird.velocity = vec2(0, 500);
-			space_pressed = false;
-		}
-		bird.velocity += vec2(0, -1200) * DELTA_TIME;
-
-		bird.transform.position += bird.velocity * DELTA_TIME;
-		//std::cout << bird.transform.position << std::endl;
-
-		bird.transform.rotation = bird.transform.rotation >= 360.0f ? 0 : (bird.transform.rotation + 360.0f * DELTA_TIME);
-
-		//Render
-		for (GameObject* obj : sceneObjects)
-		{
-			renderer->EnqueueSprite(obj->sprite, obj->transform, obj->zind);
-		}
-		renderer->Render(cam);
+		Render();
 	}
-}
 
-void Game::ProcessEventQueue()
-{
-	SDL_Event event;
-	while (SDL_PollEvent(&event))
-	{
-		//If Escape pressed, close window
-		if (event.type == SDL_KEYDOWN)
-		{
-			if (event.key.keysym.sym == SDLK_ESCAPE)
-				m_running = false;
-			else if (event.key.keysym.sym == SDLK_SPACE)
-				space_pressed = true;
-		}
-		//If Window closed using window menu
-		else if (event.type == SDL_WINDOWEVENT)
-		{
-			if (event.window.event == SDL_WINDOWEVENT_CLOSE)
-				m_running = false;
-		}
-	}
+	Destroy();
 }
