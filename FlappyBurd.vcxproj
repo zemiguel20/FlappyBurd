@@ -95,7 +95,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\core\Camera.cpp" />
-    <ClCompile Include="src\core\GameObject.cpp" />
     <ClCompile Include="src\core\Renderer.cpp" />
     <ClCompile Include="src\core\Sprite.cpp" />
     <ClCompile Include="src\Game.cpp" />

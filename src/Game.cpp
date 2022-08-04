@@ -55,9 +55,26 @@ static void Start()
 
 	//Load game objects
 	sceneObjects = new std::vector<GameObject*>;
-	sceneObjects->push_back(new GameObject(vec2(0.0f, 0.0f), 0.0f, 3.0f, (*sprites)[0], 3)); //Bird
-	sceneObjects->push_back(new GameObject(vec2(0.0f, 0.0f), 0.0f, 1.0f, (*sprites)[1], 0)); //Background
-	sceneObjects->push_back(new GameObject(vec2(0.0f, -450.0f), 0.0f, 3.0f, (*sprites)[2], 1)); //Ground
+
+	GameObject* bird = new GameObject();
+	bird->transform = Transform(vec2(0.0f, 0.0f), 0.0f, 3.0f);
+	bird->sprite = (*sprites)[0];
+	bird->zind = 3;
+	bird->boxColliderSize = vec2(22.0f, 13.0f);
+	sceneObjects->push_back(bird);
+
+	GameObject* background = new GameObject();
+	background->transform = Transform(vec2(0.0f, 0.0f), 0.0f, 1.0f);
+	background->sprite = (*sprites)[1];
+	sceneObjects->push_back(background);
+
+	GameObject* ground = new GameObject();
+	ground->transform = Transform(vec2(0.0f, -450.0f), 0.0f, 3.0f);
+	ground->sprite = (*sprites)[2];
+	ground->zind = 1;
+	ground->boxColliderSize.x = (float)ground->sprite->GetWidth();
+	ground->boxColliderSize.y = (float)ground->sprite->GetHeight();
+	sceneObjects->push_back(ground);
 
 	cam = new Camera;
 
@@ -69,7 +86,7 @@ static void Update()
 	cam->UpdateViewportTransform();
 
 	GameObject* bird = (*sceneObjects)[0];
-	
+
 	//Bird movement
 	if (space_pressed)
 	{
@@ -78,6 +95,8 @@ static void Update()
 	}
 	bird->velocity += vec2(0, -1200) * DELTA_TIME;
 	bird->transform.position += bird->velocity * DELTA_TIME;
+
+	bird->transform.rotation = bird->transform.rotation >= 360.0f ? 0 : (bird->transform.rotation + 360.0f * DELTA_TIME);
 
 	//Keep bird within screen limits
 	float limit = 490.0f;
@@ -92,7 +111,7 @@ static void Update()
 		bird->velocity = vec2();
 	}
 
-	bird->transform.rotation = bird->transform.rotation >= 360.0f ? 0 : (bird->transform.rotation + 360.0f * DELTA_TIME);
+	//Check collisions
 
 }
 

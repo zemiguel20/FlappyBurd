@@ -4,7 +4,7 @@
 #include "Transform.h"
 #include "Math.h"
 
-class GameObject
+struct GameObject
 {
 public:
 	Transform transform;
@@ -14,7 +14,14 @@ public:
 
 	vec2 velocity;
 
-	GameObject(vec2 position, float rotation, float scale, Sprite* sprite, int zind);
-	~GameObject();
+	vec2 boxColliderSize;
+
+	GameObject() :
+		transform(Transform()),
+		sprite(nullptr),
+		zind(0),
+		velocity(vec2()),
+		boxColliderSize(vec2(-1.0f, -1.0f))
+	{};
 };
 
