@@ -69,6 +69,7 @@ static void Start()
 	background->sprite = (*sprites)[1];
 	sceneObjects->push_back(background);
 
+	//Test ground
 	GameObject* ground = new GameObject();
 	ground->transform = Transform(vec2(0.0f, -450.0f), 0.0f, 3.0f);
 	ground->sprite = (*sprites)[2];
@@ -76,6 +77,9 @@ static void Start()
 	ground->boxColliderSize.x = (float)ground->sprite->GetWidth();
 	ground->boxColliderSize.y = (float)ground->sprite->GetHeight();
 	sceneObjects->push_back(ground);
+
+	//Test invisible object
+	sceneObjects->push_back(new GameObject());
 
 	cam = new Camera;
 
@@ -142,6 +146,7 @@ static void Update()
 			|| xLeft_bird >= xLeft_ground && xLeft_bird <= xRight_ground && yBot_bird >= yBot_ground && yBot_bird <= yTop_ground) //Bot left
 		{
 			game_over = true;
+			std::cout << "GAME OVER" << std::endl;
 		}
 	}
 }
@@ -164,7 +169,8 @@ static void Render()
 {
 	for (GameObject* obj : *sceneObjects)
 	{
-		renderer->EnqueueSprite(obj->sprite, obj->transform, obj->zind);
+		if (obj->sprite != nullptr)
+			renderer->EnqueueSprite(obj->sprite, obj->transform, obj->zind);
 	}
 	renderer->Render(*cam);
 }
