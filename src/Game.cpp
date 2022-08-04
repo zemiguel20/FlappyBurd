@@ -21,6 +21,7 @@ static std::vector<GameObject*>* sceneObjects = nullptr;
 static std::vector<Sprite*>* sprites = nullptr;
 static Camera* cam = nullptr;
 static bool space_pressed = false;
+static bool game_over = false;
 
 Game::Game()
 {
@@ -87,32 +88,62 @@ static void Update()
 
 	GameObject* bird = (*sceneObjects)[0];
 
-	//Bird movement
-	if (space_pressed)
+
+	if (game_over == false)
 	{
-		bird->velocity = vec2(0, 500);
-		space_pressed = false;
+		/*********************
+		* BIRD MOVEMENT
+		*********************/
+
+		if (space_pressed)
+		{
+			bird->velocity = vec2(0, 500);
+			space_pressed = false;
+		}
+		bird->velocity += vec2(0, -1200) * DELTA_TIME;
+		bird->transform.position += bird->velocity * DELTA_TIME;
+
+		bird->transform.rotation = bird->transform.rotation >= 360.0f ? 0 : (bird->transform.rotation + 360.0f * DELTA_TIME);
+
+		//Keep bird within screen limits
+		float limit = 490.0f;
+		if (bird->transform.position.y > limit)
+		{
+			bird->transform.position.y = limit;
+			bird->velocity = vec2();
+		}
+		else if (bird->transform.position.y < -limit)
+		{
+			bird->transform.position.y = -limit;
+			bird->velocity = vec2();
+		}
+
+
+		/****************
+		* CHECK COLLISIONS
+		*****************/
+
+		//Bird bounding box
+		float xLeft_bird = bird->transform.position.x - (bird->boxColliderSize.x * 0.5f * bird->transform.scale);
+		float xRight_Bird = bird->transform.position.x + (bird->boxColliderSize.x * 0.5f * bird->transform.scale);
+		float yTop_bird = bird->transform.position.y + (bird->boxColliderSize.y * 0.5f * bird->transform.scale);
+		float yBot_bird = bird->transform.position.y - (bird->boxColliderSize.y * 0.5f * bird->transform.scale);
+
+		//Ground
+		GameObject* ground = (*sceneObjects)[2];
+		float xLeft_ground = ground->transform.position.x - (ground->boxColliderSize.x * 0.5f * ground->transform.scale);
+		float xRight_ground = ground->transform.position.x + (ground->boxColliderSize.x * 0.5f * ground->transform.scale);
+		float yTop_ground = ground->transform.position.y + (ground->boxColliderSize.y * 0.5f * ground->transform.scale);
+		float yBot_ground = ground->transform.position.y - (ground->boxColliderSize.y * 0.5f * ground->transform.scale);
+
+		if (xLeft_bird >= xLeft_ground && xLeft_bird <= xRight_ground && yTop_bird >= yBot_ground && yTop_bird <= yTop_ground //Top left
+			|| xRight_Bird >= xLeft_ground && xRight_Bird <= xRight_ground && yTop_bird >= yBot_ground && yTop_bird <= yTop_ground //Top right
+			|| xRight_Bird >= xLeft_ground && xRight_Bird <= xRight_ground && yBot_bird >= yBot_ground && yBot_bird <= yTop_ground //Bot right
+			|| xLeft_bird >= xLeft_ground && xLeft_bird <= xRight_ground && yBot_bird >= yBot_ground && yBot_bird <= yTop_ground) //Bot left
+		{
+			game_over = true;
+		}
 	}
-	bird->velocity += vec2(0, -1200) * DELTA_TIME;
-	bird->transform.position += bird->velocity * DELTA_TIME;
-
-	bird->transform.rotation = bird->transform.rotation >= 360.0f ? 0 : (bird->transform.rotation + 360.0f * DELTA_TIME);
-
-	//Keep bird within screen limits
-	float limit = 490.0f;
-	if (bird->transform.position.y > limit)
-	{
-		bird->transform.position.y = limit;
-		bird->velocity = vec2();
-	}
-	else if (bird->transform.position.y < -limit)
-	{
-		bird->transform.position.y = -limit;
-		bird->velocity = vec2();
-	}
-
-	//Check collisions
-
 }
 
 // Destroy game variables
