@@ -101,7 +101,6 @@
     <ClInclude Include="3rd\raylib\include\raylib.h" />
     <ClInclude Include="3rd\raylib\include\raymath.h" />
     <ClInclude Include="3rd\raylib\include\rlgl.h" />
-    <ClInclude Include="src\GameObject.h" />
     <ClInclude Include="src\Game.h" />
   </ItemGroup>
   <ItemGroup>

@@ -2,12 +2,10 @@
 
 #include <raylib.h>
 #include <vector>
-#include <algorithm>
 #include <string>
-#include "GameObject.h"
 
-#define SCREEN_WIDTH   360
-#define SCREEN_HEIGHT  640
+#define SCREEN_WIDTH   360 // Reference screen width
+#define SCREEN_HEIGHT  640 // Reference screen height
 
 //-----------------------------------------------------------------------------
 // CORE LOADING/UNLOADING
@@ -32,30 +30,66 @@ void Game::Close()
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
+// GAME VARIABLES
+//-----------------------------------------------------------------------------
+
+typedef struct Bird {
+	Vector2 position;
+	float rotation;
+	float scale;
+	Texture2D* texture;
+	Vector2 velocity;
+	Rectangle collider;
+} Bird;
+
+typedef struct Background
+{
+	Texture2D* texture;
+} Background;
+
+typedef struct GroundBlock
+{
+	Vector2 position;
+	float scale;
+	Texture2D* texture;
+	Rectangle collider;
+} GroundBlock;
+
+float SCROLL_VEL = 70.0f;
+
+static Bird player;
+static Background bg;
+static std::vector<GroundBlock> blocks;
+static std::vector<Texture2D> textures;
+static Camera2D camera;
+static bool isGameOver = false;
+
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
 // GAME RUNTIME
 //-----------------------------------------------------------------------------
 
 // Different stages of runtime
-static void Start();	// Initialize game variables
-static void Update();	// Update game state for current frame
-static void Render();	// Display current frame
-static void Destroy();	// Unload game variables
-
-// Global Variables
-static std::vector<Texture2D> textures;
-static Camera2D camera;
-static std::vector<GameObject> sceneObjects;
-static bool isGameOver = false;
+static void Start();
+static void UpdateBirdMovement();
+static void UpdateScrolling();
+static void ResolveCollisions();
+static void Render();
+static void Destroy();
 
 void Game::Run()
 {
 	Start();
 
-	bool resbool = false;
 	while (!WindowShouldClose())
 	{
-		//	ProcessEventQueue();
-		Update();
+		if (!isGameOver)
+		{
+			UpdateBirdMovement();
+			UpdateScrolling();
+			ResolveCollisions();
+		}
 
 		Render();
 	}
@@ -78,138 +112,155 @@ void Start()
 	camera.rotation = 0.0f;
 	camera.zoom = 1.0f;
 
-	GameObject bird;
-	bird.scale = 2.0f;
-	bird.texture = &textures[0];
-	bird.zind = 3;
-	bird.boxColliderSize = Vector2(22.0f, 13.0f);
-	sceneObjects.push_back(bird);
+	// Init player
+	player.position = Vector2(0.0f, 0.0f);
+	player.rotation = 0.0f;
+	player.scale = 2.0f;
+	player.texture = &textures[0];
+	player.velocity = Vector2(0.0f, 0.0f);
+	player.collider = Rectangle(-11.0f, 6.5f, 22.0f, 13.0f);
 
-	GameObject background;
-	background.texture = &textures[1];
-	background.scale = 0.65f;
-	sceneObjects.push_back(background);
+	// Init background
+	bg.texture = &textures[1];
 
-	//Test ground
-	GameObject ground;
-	ground.position.y = -300.0f;
-	ground.scale = 2.0f;
-	ground.texture = &textures[2];
-	ground.zind = 1;
-	ground.boxColliderSize.x = (float)ground.texture->width;
-	ground.boxColliderSize.y = (float)ground.texture->height;
-	sceneObjects.push_back(ground);
-
-	//Test invisible object
-	sceneObjects.push_back(GameObject());
+	// Init ground blocks
+	GroundBlock gbBase;
+	gbBase.scale = 2.0f;
+	gbBase.texture = &textures[2];
+	gbBase.position.x = (-SCREEN_WIDTH / 2) + (gbBase.texture->width * gbBase.scale / 2);
+	gbBase.position.y = -300.0f;
+	gbBase.collider.width = (float)gbBase.texture->width;
+	gbBase.collider.height = (float)gbBase.texture->height;
+	gbBase.collider.x = -(float)gbBase.texture->width / 2;
+	gbBase.collider.y = (float)gbBase.texture->height / 2;
+	blocks = { gbBase, gbBase, gbBase, gbBase, gbBase };
+	for (int i = 0; i < blocks.size(); i++)
+	{
+		blocks[i].position.x += blocks[i].texture->width * blocks[i].scale * i;
+	}
 }
 
-void Update()
+void UpdateBirdMovement()
 {
-	if (!isGameOver)
+	// Jump
+	if (IsKeyPressed(KEY_SPACE))
 	{
-		/*********************
-		* BIRD MOVEMENT
-		*********************/
+		player.velocity.y = 500.0f;
+	}
 
-		GameObject* bird = &sceneObjects[0];
+	// Acceleration
+	player.velocity.y += -1200.0f * GetFrameTime();
+	// Apply velocity to position
+	player.position.y += player.velocity.y * GetFrameTime();
+	// Rotation (value kept between 0-360)
+	player.rotation += 360.0f * GetFrameTime();
+	if (player.rotation >= 360.0f)
+		player.rotation -= 360.0f;
 
-		// Jump
-		if (IsKeyPressed(KEY_SPACE))
-		{
-			bird->velocity.y = 500.0f;
-		}
+	//Keep bird within screen limits
+	float limit = (float)SCREEN_HEIGHT / 2 - (float)player.texture->height / 2;
+	if (player.position.y > limit)
+	{
+		player.position.y = limit;
+		player.velocity.y = 0.0f;
+	}
+	else if (player.position.y < -limit)
+	{
+		player.position.y = -limit;
+		player.velocity.y = 0.0f;
+	}
+}
 
-		// Acceleration
-		bird->velocity.y += -1200.0f * GetFrameTime();
-		// Apply velocity to position
-		bird->position.y += bird->velocity.y * GetFrameTime();
-		// Rotation (value kept between 0-360)
-		bird->rotation += 360.0f * GetFrameTime();
-		if (bird->rotation >= 360.0f)
-			bird->rotation -= 360.0f;
+void UpdateScrolling()
+{
+	for (GroundBlock& gb : blocks)
+	{
+		gb.position.x -= SCROLL_VEL * GetFrameTime();
+	}
+	bool firstBlockNotVisible = (blocks[0].position.x + (blocks[0].texture->width / 2) * blocks[0].scale) < -(SCREEN_WIDTH / 2);
+	if (firstBlockNotVisible)
+	{
+		GroundBlock block = blocks[0];
+		block.position.x = blocks.back().position.x + block.texture->width * block.scale;
+		blocks.erase(blocks.begin());
+		blocks.push_back(block);
+	}
+}
 
-		//Keep bird within screen limits
-		float limit = 300;
-		if (bird->position.y > limit)
-		{
-			bird->position.y = limit;
-			bird->velocity.y = 0.0f;
-		}
-		else if (bird->position.y < -limit)
-		{
-			bird->position.y = -limit;
-			bird->velocity.y = 0.0f;
-		}
+// Scale Local collider and translate to World
+static Rectangle GetTransformedCollider(Rectangle collider, Vector2 pos, float scale)
+{
+	// Scale collider
+	collider.width *= scale;
+	collider.height *= scale;
+	collider.x *= scale;
+	collider.y *= scale;
+	// Local to World Space
+	collider.x += pos.x;
+	collider.y += pos.y;
 
-		/****************
-		* CHECK COLLISIONS
-		*****************/
+	return collider;
+}
 
-		//Bird bounding box
-		float xLeft_bird = bird->position.x - (bird->boxColliderSize.x * 0.5f * bird->scale);
-		float xRight_Bird = bird->position.x + (bird->boxColliderSize.x * 0.5f * bird->scale);
-		float yTop_bird = bird->position.y + (bird->boxColliderSize.y * 0.5f * bird->scale);
-		float yBot_bird = bird->position.y - (bird->boxColliderSize.y * 0.5f * bird->scale);
+void ResolveCollisions()
+{
+	Rectangle birdCollider = GetTransformedCollider(player.collider, player.position, player.scale);
+	birdCollider.y *= -1.0f; // raylib uses downwards Y
 
-		//Ground
-		GameObject* ground = &sceneObjects[2];
-		float xLeft_ground = ground->position.x - (ground->boxColliderSize.x * 0.5f * ground->scale);
-		float xRight_ground = ground->position.x + (ground->boxColliderSize.x * 0.5f * ground->scale);
-		float yTop_ground = ground->position.y + (ground->boxColliderSize.y * 0.5f * ground->scale);
-		float yBot_ground = ground->position.y - (ground->boxColliderSize.y * 0.5f * ground->scale);
-
-		if (xLeft_bird >= xLeft_ground && xLeft_bird <= xRight_ground && yTop_bird >= yBot_ground && yTop_bird <= yTop_ground //Top left
-			|| xRight_Bird >= xLeft_ground && xRight_Bird <= xRight_ground && yTop_bird >= yBot_ground && yTop_bird <= yTop_ground //Top right
-			|| xRight_Bird >= xLeft_ground && xRight_Bird <= xRight_ground && yBot_bird >= yBot_ground && yBot_bird <= yTop_ground //Bot right
-			|| xLeft_bird >= xLeft_ground && xLeft_bird <= xRight_ground && yBot_bird >= yBot_ground && yBot_bird <= yTop_ground) //Bot left
+	// Check collisions with ground
+	for (GroundBlock& gb : blocks)
+	{
+		Rectangle groundCollider = GetTransformedCollider(gb.collider, gb.position, gb.scale);
+		groundCollider.y *= -1.0f; // raylib uses downwards Y
+		if (CheckCollisionRecs(birdCollider, groundCollider))
 		{
 			isGameOver = true;
+			break;
 		}
 	}
 }
 
-// Render queue used to sort scene objects by z-index
-static std::vector<GameObject> renderQueue;
+// Draws texture at center pos, with certain scale and rotation over itself
+static void DrawTexture(Texture2D tex, Vector2 pos, float scale, float rot)
+{
+	Rectangle source(
+		0.0f,
+		0.0f,
+		(float)tex.width,
+		(float)tex.height
+	);
+	Rectangle dest(
+		pos.x,
+		-pos.y, //Screen Y axis is downwards
+		source.width * scale,
+		source.height * scale
+	);
+	Vector2 origin(
+		dest.width * 0.5f,
+		dest.height * 0.5f
+	);
+	DrawTexturePro(tex, source, dest, origin, rot, WHITE);
+}
 
 void Render()
 {
-	// Enqueue scene objects and sort by z-index
-	renderQueue.clear();
-	for (GameObject& obj : sceneObjects)
-		if (obj.texture)
-			renderQueue.push_back(obj);
-	std::sort(renderQueue.begin(), renderQueue.end(),
-		[](GameObject& a, GameObject& b) {
-			return a.zind < b.zind;
-		});
-
 	BeginDrawing();
 
 	ClearBackground(RAYWHITE);
 
 	BeginMode2D(camera);
 
-	for (GameObject& obj : renderQueue)
+	// Draw background
+	DrawTexture(*bg.texture, Vector2(0.0f, 0.0f), 0.6f, 0.0f);
+
+	// Draw ground blocks
+	for (GroundBlock& gb : blocks)
 	{
-		Rectangle source;
-		source.x = 0.0f;
-		source.y = 0.0f;
-		source.width = (float)obj.texture->width;
-		source.height = (float)obj.texture->height;
-
-		Rectangle dest;
-		dest.x = obj.position.x;
-		dest.y = -obj.position.y; //Screen Y axis is downwards, so invert
-		dest.width = source.width * obj.scale;
-		dest.height = source.height * obj.scale;
-
-		Vector2 origin;
-		origin.x = dest.width / 2;
-		origin.y = dest.height / 2;
-
-		DrawTexturePro(*obj.texture, source, dest, origin, obj.rotation, WHITE);
+		DrawTexture(*gb.texture, gb.position, gb.scale, 0.0f);
 	}
+
+	// Draw bird
+	DrawTexture(*player.texture, player.position, player.scale, player.rotation);
 
 	//Debug lines camera center
 	DrawLine((int)camera.target.x, -SCREEN_HEIGHT * 10, (int)camera.target.x, SCREEN_HEIGHT * 10, GREEN);
@@ -220,10 +271,15 @@ void Render()
 		DrawText("GAME OVER", 0, 0, 20, RED);
 	}
 
+	Rectangle birdCollider = GetTransformedCollider(player.collider, player.position, player.scale);
+	DrawRectangle((int)birdCollider.x, (int)-birdCollider.y, (int)birdCollider.width, (int)birdCollider.height, PURPLE);
+
+
 	EndMode2D();
 
 	// DEBUG TEXT
 	DrawFPS(0, 0);
+
 
 	EndDrawing();
 }
