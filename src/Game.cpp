@@ -55,14 +55,21 @@ typedef struct GroundBlock
 	Rectangle collider;
 } GroundBlock;
 
+enum GameState
+{
+	START,
+	RUNNING,
+	GAME_OVER
+};
+
 float SCROLL_VEL = 70.0f;
 
+static GameState gameState;
 static Bird player;
 static Background bg;
 static std::vector<GroundBlock> blocks;
 static std::vector<Texture2D> textures;
 static Camera2D camera;
-static bool isGameOver = false;
 
 //-----------------------------------------------------------------------------
 
@@ -72,6 +79,7 @@ static bool isGameOver = false;
 
 // Different stages of runtime
 static void Start();
+static void ResetRun();
 static void UpdateBirdMovement();
 static void UpdateScrolling();
 static void ResolveCollisions();
@@ -84,7 +92,15 @@ void Game::Run()
 
 	while (!WindowShouldClose())
 	{
-		if (!isGameOver)
+		if (gameState == START || gameState == GAME_OVER)
+		{
+			if (IsKeyPressed(KEY_SPACE))
+			{
+				gameState = RUNNING;
+				ResetRun();
+			}
+		}
+		if (gameState == RUNNING)
 		{
 			UpdateBirdMovement();
 			UpdateScrolling();
@@ -99,6 +115,8 @@ void Game::Run()
 
 void Start()
 {
+	gameState = START;
+
 	//Load Textures
 	textures.push_back(LoadTexture("res/burd.png"));
 	textures.push_back(LoadTexture("res/background-day.png"));
@@ -127,7 +145,7 @@ void Start()
 	GroundBlock gbBase;
 	gbBase.scale = 2.0f;
 	gbBase.texture = &textures[2];
-	gbBase.position.x = (-SCREEN_WIDTH / 2) + (gbBase.texture->width * gbBase.scale / 2);
+	gbBase.position.x = -(SCREEN_WIDTH / 2) + (gbBase.texture->width * gbBase.scale / 2);
 	gbBase.position.y = -300.0f;
 	gbBase.collider.width = (float)gbBase.texture->width;
 	gbBase.collider.height = (float)gbBase.texture->height;
@@ -138,6 +156,11 @@ void Start()
 	{
 		blocks[i].position.x += blocks[i].texture->width * blocks[i].scale * i;
 	}
+}
+
+void ResetRun()
+{
+	player.position = Vector2(0.0f, 0.0f);
 }
 
 void UpdateBirdMovement()
@@ -214,7 +237,7 @@ void ResolveCollisions()
 		groundCollider.y *= -1.0f; // raylib uses downwards Y
 		if (CheckCollisionRecs(birdCollider, groundCollider))
 		{
-			isGameOver = true;
+			gameState = GAME_OVER;
 			break;
 		}
 	}
@@ -266,7 +289,7 @@ void Render()
 	DrawLine((int)camera.target.x, -SCREEN_HEIGHT * 10, (int)camera.target.x, SCREEN_HEIGHT * 10, GREEN);
 	DrawLine(-SCREEN_WIDTH * 10, (int)camera.target.y, SCREEN_WIDTH * 10, (int)camera.target.y, GREEN);
 
-	if (isGameOver)
+	if (gameState == GAME_OVER)
 	{
 		DrawText("GAME OVER", 0, 0, 20, RED);
 	}
