@@ -1,19 +1,16 @@
-#define SDL_MAIN_HANDLED //This solves conflict with SDL definition of main
 #include "Game.h"
-#include <iostream>
 
 int main()
 {
-	try
+	int code = -1;
+
+	if (Game::Init())
 	{
-		Game game;
-		game.Run();
-	}
-	catch (const char* errMsg)
-	{
-		std::cerr << errMsg << std::endl;
-		return -1;
+		code = 0;
+		Game::Run();
 	}
 
-	return 0;
+	Game::Close();
+
+	return code;
 }

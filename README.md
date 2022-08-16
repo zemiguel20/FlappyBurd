@@ -1,6 +1,6 @@
 # Flappy Burd
 
-Flappy bird clone for Windows x64 built using C++ and SDL2.
+Flappy bird clone for Windows x64 built using C++ and [raylib](https://www.raylib.com/).
 
 ## Dev
 
@@ -8,8 +8,7 @@ Flappy bird clone for Windows x64 built using C++ and SDL2.
 
 Included in project 3rd party folder. Copy .dll files if present to build folder
 or download them from website.
-* SDL2 2.0.20
-* SDL2_Images 2.0.5
+* raylib 4.2.0
 
 ### Project IDE version
 
