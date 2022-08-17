@@ -4,31 +4,6 @@
 #include <vector>
 #include <string>
 
-#define SCREEN_WIDTH   360 // Reference screen width
-#define SCREEN_HEIGHT  640 // Reference screen height
-
-//-----------------------------------------------------------------------------
-// CORE LOADING/UNLOADING
-//-----------------------------------------------------------------------------
-
-bool Game::Init()
-{
-	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "FlappyBurd");
-	if (!IsWindowReady())
-		return false;
-
-	//SetTargetFPS(60);
-
-	return true;
-}
-
-void Game::Close()
-{
-	CloseWindow();
-}
-
-//-----------------------------------------------------------------------------
-
 //-----------------------------------------------------------------------------
 // GAME VARIABLES
 //-----------------------------------------------------------------------------
@@ -62,7 +37,10 @@ enum GameState
 	GAME_OVER
 };
 
-float SCROLL_VEL = 70.0f;
+const int SCREEN_WIDTH = 360; // Reference screen width
+const int SCREEN_HEIGHT = 640; // Reference screen height
+
+const float SCROLL_VEL = 70.0f; // Abs velocity of the scrolling ground and barriers
 
 static GameState gameState;
 static Bird player;
@@ -71,60 +49,30 @@ static std::vector<GroundBlock> blocks;
 static std::vector<Texture2D> textures;
 static Camera2D camera;
 
+static std::vector<Texture2D> textures; // Stores loaded textures
+
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-// GAME RUNTIME
+// CORE LOADING/UNLOADING
 //-----------------------------------------------------------------------------
 
-// Different stages of runtime
-static void Start();
-static void ResetRun();
-static void UpdateBirdMovement();
-static void UpdateScrolling();
-static void ResolveCollisions();
-static void Render();
-static void Destroy();
-
-void Game::Run()
+bool Game::Init()
 {
-	Start();
+	// Init window and rendering
+	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "FlappyBurd");
+	if (!IsWindowReady())
+		return false;
+	//SetTargetFPS(60);
 
-	while (!WindowShouldClose())
-	{
-		if (gameState == START || gameState == GAME_OVER)
-		{
-			if (IsKeyPressed(KEY_SPACE))
-			{
-				gameState = RUNNING;
-				ResetRun();
-			}
-		}
-		if (gameState == RUNNING)
-		{
-			UpdateBirdMovement();
-			UpdateScrolling();
-			ResolveCollisions();
-		}
-
-		Render();
-	}
-
-	Destroy();
-}
-
-void Start()
-{
-	gameState = START;
-
-	//Load Textures
+	// Load Textures
 	textures.push_back(LoadTexture("res/burd.png"));
 	textures.push_back(LoadTexture("res/background-day.png"));
 	textures.push_back(LoadTexture("res/dirtsprite.png"));
 
 	// Init camera
-	camera.offset.x = (float)GetScreenWidth() / 2;
-	camera.offset.y = (float)GetScreenHeight() / 2;
+	camera.offset.x = (float)(SCREEN_WIDTH / 2);
+	camera.offset.y = (float)(SCREEN_HEIGHT / 2);
 	camera.target.x = 0.0f;
 	camera.target.y = 0.0f;
 	camera.rotation = 0.0f;
@@ -143,24 +91,87 @@ void Start()
 
 	// Init ground blocks
 	GroundBlock gbBase;
-	gbBase.scale = 2.0f;
 	gbBase.texture = &textures[2];
-	gbBase.position.x = -(SCREEN_WIDTH / 2) + (gbBase.texture->width * gbBase.scale / 2);
+	gbBase.scale = 2.0f;
+	gbBase.position.x = 0.0f;
 	gbBase.position.y = -300.0f;
 	gbBase.collider.width = (float)gbBase.texture->width;
 	gbBase.collider.height = (float)gbBase.texture->height;
 	gbBase.collider.x = -(float)gbBase.texture->width / 2;
 	gbBase.collider.y = (float)gbBase.texture->height / 2;
+
 	blocks = { gbBase, gbBase, gbBase, gbBase, gbBase };
-	for (int i = 0; i < blocks.size(); i++)
+
+
+	return true;
+}
+
+void Game::Close()
+{
+	// Unload Textures
+	for (Texture2D& tex : textures)
+		UnloadTexture(tex);
+
+	// Unload window and render context
+	CloseWindow();
+}
+
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+// GAME RUNTIME
+//-----------------------------------------------------------------------------
+
+// Different stages of runtime
+static void ResetRun();
+static void UpdateBirdMovement();
+static void UpdateScrolling();
+static void ResolveCollisions();
+static void Render();
+
+void Game::Run()
 	{
-		blocks[i].position.x += blocks[i].texture->width * blocks[i].scale * i;
+	gameState = START;
+	ResetRun(); // Needed to initially position elements and set score to 0
+
+	while (!WindowShouldClose())
+	{
+		if (gameState == START || gameState == GAME_OVER)
+		{
+			if (IsKeyPressed(KEY_SPACE))
+			{
+				if (gameState == GAME_OVER)
+					ResetRun();
+				gameState = RUNNING;
+			}
+		}
+		if (gameState == RUNNING)
+		{
+			UpdateBirdMovement();
+			UpdateScrolling();
+			ResolveCollisions();
+		}
+
+		Render();
 	}
 }
 
 void ResetRun()
 {
-	player.position = Vector2(0.0f, 0.0f);
+	// Player starting position
+	player.position.y = 0.0f;
+
+	// Set first block on leftmost side
+	blocks[0].position.x =
+		-(SCREEN_WIDTH / 2)
+		+ ((blocks[0].texture->width / 2) * blocks[0].scale);
+	// Set other blocks one after another
+	for (int i = 1; i < blocks.size(); i++)
+	{
+		blocks[i].position.x =
+			blocks[i - 1].position.x
+			+ (blocks[i].texture->width * blocks[i].scale);
+	}
 }
 
 void UpdateBirdMovement()
@@ -305,11 +316,4 @@ void Render()
 
 
 	EndDrawing();
-}
-
-void Destroy()
-{
-	//Unload Textures
-	for (Texture2D& tex : textures)
-		UnloadTexture(tex);
 }
