@@ -62,6 +62,8 @@ static std::vector<GroundBlock> blocks;
 static std::vector<Barrier> barriers;
 static Camera2D camera;
 
+static float gameOverCooldown;
+
 static std::vector<Texture2D> textures; // Stores loaded textures
 
 //-----------------------------------------------------------------------------
@@ -72,11 +74,11 @@ static std::vector<Texture2D> textures; // Stores loaded textures
 
 bool Game::Init()
 {
+	SetConfigFlags(FLAG_VSYNC_HINT);
 	// Init window and rendering
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "FlappyBurd");
 	if (!IsWindowReady())
 		return false;
-	//SetTargetFPS(60);
 
 	// Load Textures
 	textures.push_back(LoadTexture("res/burd.png"));
@@ -162,7 +164,7 @@ static void ResolveCollisions();
 static void Render();
 
 void Game::Run()
-	{
+{
 	gameState = START;
 	ResetRun(); // Needed to initially position elements and set score to 0
 
@@ -170,10 +172,16 @@ void Game::Run()
 	{
 		if (gameState == START || gameState == GAME_OVER)
 		{
-			if (IsKeyPressed(KEY_SPACE))
+			if (gameState == GAME_OVER && gameOverCooldown < 1.0f)
 			{
-				if (gameState == GAME_OVER)
+				gameOverCooldown += GetFrameTime();
+			}
+			else if (IsKeyPressed(KEY_SPACE))
+			{
+				if (gameState == GAME_OVER && gameOverCooldown >= 1.0f)
+				{
 					ResetRun();
+				}
 				gameState = RUNNING;
 			}
 		}
@@ -212,7 +220,9 @@ void ResetRun()
 	{
 		barriers[i].position.x = barriers[i - 1].position.x + 250.0f;
 		barriers[0].position.y = GetRandomValue(-150, 200);
-}
+	}
+
+	gameOverCooldown = 0.0f;
 }
 
 void UpdateBirdMovement()
@@ -232,7 +242,7 @@ void UpdateBirdMovement()
 	if (player.rotation >= 360.0f)
 		player.rotation -= 360.0f;*/
 
-	//Keep bird within screen limits
+		//Keep bird within screen limits
 	float limit = (float)SCREEN_HEIGHT / 2 - (float)player.texture->height / 2;
 	if (player.position.y > limit)
 	{
@@ -266,7 +276,7 @@ void UpdateScrolling()
 	for (Barrier& br : barriers)
 	{
 		br.position.x -= SCROLL_VEL * GetFrameTime();
-}
+	}
 	bool firstBarrierNotVisible = (barriers[0].position.x + (barriers[0].texture->width / 2) * barriers[0].scale) < -(SCREEN_WIDTH / 2);
 	if (firstBarrierNotVisible)
 	{
@@ -343,8 +353,8 @@ void ResolveCollisions()
 		{
 			gameState = GAME_OVER;
 			break;
+		}
 	}
-}
 }
 
 // Draws texture at center pos, with certain scale and rotation over itself
