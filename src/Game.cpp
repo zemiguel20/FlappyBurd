@@ -61,7 +61,8 @@ static Background bg;
 static std::vector<GroundBlock> blocks;
 static std::vector<Barrier> barriers;
 static Camera2D camera;
-
+static int score;
+static int highscore;
 static float gameOverCooldown;
 
 static std::vector<Texture2D> textures; // Stores loaded textures
@@ -136,6 +137,8 @@ bool Game::Init()
 	brBase.botPos = -brBase.topPos;
 
 	barriers = { brBase, brBase, brBase };
+
+	highscore = 0;
 
 	return true;
 }
@@ -214,15 +217,19 @@ void ResetRun()
 	}
 
 	// Set first barrier at the right side outside of screen
+	barriers[0].passed = false;
 	barriers[0].position.x = SCREEN_WIDTH / 2;
 	barriers[0].position.y = GetRandomValue(-150, 200);
 	for (int i = 1; i < barriers.size(); i++)
 	{
 		barriers[i].position.x = barriers[i - 1].position.x + 250.0f;
-		barriers[0].position.y = GetRandomValue(-150, 200);
+		barriers[i].position.y = GetRandomValue(-150, 200);
+		barriers[i].passed = false;
 	}
 
 	gameOverCooldown = 0.0f;
+
+	score = 0;
 }
 
 void UpdateBirdMovement()
@@ -329,7 +336,10 @@ void ResolveCollisions()
 			gapCol.y *= -1.0f;
 			if (CheckCollisionRecs(birdCollider, gapCol))
 			{
-				TraceLog(LOG_INFO, "BARRIER PASSED");
+				score++;
+				if (score > highscore)
+					highscore = score;
+
 				br.passed = true;
 				break;
 			}
@@ -436,12 +446,6 @@ void Render()
 	DrawLine(-GetScreenWidth() * 10, -200, GetScreenWidth(), -200, WHITE);
 	DrawLine(-GetScreenWidth() * 10, 150, GetScreenWidth(), 150, WHITE);
 
-
-	if (gameState == GAME_OVER)
-	{
-		DrawText("GAME OVER", 0, 0, 20, RED);
-	}
-
 	// Draw colliders
 	DrawCollider(player.collider, player.position, player.scale);
 	for (GroundBlock& gb : blocks)
@@ -460,6 +464,70 @@ void Render()
 	}
 
 	EndMode2D();
+
+	// Draw Score
+	if (gameState == RUNNING)
+	{
+		std::string scoreStr = std::to_string(score);
+		Vector2 textPos;
+		textPos.x = (SCREEN_WIDTH / 2) - (MeasureText(scoreStr.c_str(), 30) / 2);
+		textPos.y = 50.0f;
+		DrawText(scoreStr.c_str(), textPos.x, textPos.y, 30, WHITE);
+	}
+
+	// Draw End game panel
+	if (gameState == GAME_OVER)
+	{
+		int posX = (SCREEN_WIDTH / 2) - (MeasureText("GAME OVER", 40) / 2);
+		int posY = (SCREEN_HEIGHT / 2) - 150;
+		DrawText("GAME OVER", posX, posY, 40, RED);
+
+		posX = (SCREEN_WIDTH / 2) - 100;
+		posY = (SCREEN_HEIGHT / 2) - 100;
+		DrawRectangle(posX, posY, 200, 200, BROWN);
+
+		posX = (SCREEN_WIDTH / 2) - (MeasureText("SCORE", 20) / 2);
+		posY = (SCREEN_HEIGHT / 2) - 80;
+		DrawText("SCORE", posX, posY, 20, WHITE);
+
+		std::string scoreStr = std::to_string(score);
+		posX = (SCREEN_WIDTH / 2) - (MeasureText(scoreStr.c_str(), 20) / 2);
+		posY = (SCREEN_HEIGHT / 2) - 40;
+		DrawText(scoreStr.c_str(), posX, posY, 20, YELLOW);
+
+		posX = (SCREEN_WIDTH / 2) - (MeasureText("HIGHSCORE", 20) / 2);
+		posY = (SCREEN_HEIGHT / 2) + 20;
+		DrawText("HIGHSCORE", posX, posY, 20, WHITE);
+
+		std::string highscrStr = std::to_string(highscore);
+		posX = (SCREEN_WIDTH / 2) - (MeasureText(highscrStr.c_str(), 20) / 2);
+		posY = (SCREEN_HEIGHT / 2) + 60;
+		DrawText(highscrStr.c_str(), posX, posY, 20, YELLOW);
+
+		if (gameOverCooldown > 1.0f)
+		{
+			posX = (SCREEN_WIDTH / 2) - (MeasureText("Press SPACE to play", 20) / 2);
+			posY = (SCREEN_HEIGHT / 2) + 150;
+			DrawText("Press SPACE to play", posX, posY, 20, WHITE);
+		}
+	}
+
+	if (gameState == START)
+	{
+		int posX = (SCREEN_WIDTH / 2) - (MeasureText("FLAPPY", 50) / 2);
+		int posY = 50;
+		DrawText("FLAPPY", posX, posY, 50, RED);
+
+		posX = (SCREEN_WIDTH / 2) - (MeasureText("BURD", 50) / 2);
+		posY = 120;
+		DrawText("BURD", posX, posY, 50, RED);
+
+
+		posX = (SCREEN_WIDTH / 2) - (MeasureText("Press SPACE to play", 20) / 2);
+		posY = (SCREEN_HEIGHT / 2) + 150;
+		DrawText("Press SPACE to play", posX, posY, 20, WHITE);
+	}
+
 
 	// DEBUG TEXT
 	DrawFPS(0, 0);
