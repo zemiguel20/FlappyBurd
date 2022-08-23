@@ -30,6 +30,19 @@ typedef struct GroundBlock
 	Rectangle collider;
 } GroundBlock;
 
+typedef struct Barrier
+{
+	Vector2 position;
+	float scale;
+	Texture2D* texture;
+
+	float topPos; // Y local position of the top part of the barrier
+	float botPos; // Y local position of the bottom part of the barrier
+	Rectangle obsCollider; // Collider dimensions for the obstacle part of the barrier
+	Rectangle gapCollider; // Collider dimensions for the gap of the barrier
+	bool passed; // If barrier was passed or not. Middle collider used for this.
+} Barrier;
+
 enum GameState
 {
 	START,
@@ -46,7 +59,7 @@ static GameState gameState;
 static Bird player;
 static Background bg;
 static std::vector<GroundBlock> blocks;
-static std::vector<Texture2D> textures;
+static std::vector<Barrier> barriers;
 static Camera2D camera;
 
 static std::vector<Texture2D> textures; // Stores loaded textures
@@ -69,6 +82,7 @@ bool Game::Init()
 	textures.push_back(LoadTexture("res/burd.png"));
 	textures.push_back(LoadTexture("res/background-day.png"));
 	textures.push_back(LoadTexture("res/dirtsprite.png"));
+	textures.push_back(LoadTexture("res/log.png"));
 
 	// Init camera
 	camera.offset.x = (float)(SCREEN_WIDTH / 2);
@@ -102,6 +116,24 @@ bool Game::Init()
 
 	blocks = { gbBase, gbBase, gbBase, gbBase, gbBase };
 
+	// Init barriers
+	Barrier brBase;
+	brBase.texture = &textures[3];
+	brBase.scale = 3.0f;
+	brBase.position = Vector2(50.0f, 0.0f);
+	brBase.passed = false;
+	brBase.gapCollider.width = 5.0f;
+	brBase.gapCollider.height = 50.0f;
+	brBase.gapCollider.x = -(brBase.gapCollider.width / 2);
+	brBase.gapCollider.y = brBase.gapCollider.height / 2;
+	brBase.obsCollider.width = 20.0f;
+	brBase.obsCollider.height = 244.0f;
+	brBase.obsCollider.x = -(brBase.obsCollider.width / 2);
+	brBase.obsCollider.y = brBase.obsCollider.height / 2;
+	brBase.topPos = brBase.gapCollider.y + brBase.obsCollider.y;
+	brBase.botPos = -brBase.topPos;
+
+	barriers = { brBase, brBase, brBase };
 
 	return true;
 }
@@ -172,6 +204,15 @@ void ResetRun()
 			blocks[i - 1].position.x
 			+ (blocks[i].texture->width * blocks[i].scale);
 	}
+
+	// Set first barrier at the right side outside of screen
+	barriers[0].position.x = SCREEN_WIDTH / 2;
+	barriers[0].position.y = GetRandomValue(-150, 200);
+	for (int i = 1; i < barriers.size(); i++)
+	{
+		barriers[i].position.x = barriers[i - 1].position.x + 250.0f;
+		barriers[0].position.y = GetRandomValue(-150, 200);
+}
 }
 
 void UpdateBirdMovement()
@@ -187,9 +228,9 @@ void UpdateBirdMovement()
 	// Apply velocity to position
 	player.position.y += player.velocity.y * GetFrameTime();
 	// Rotation (value kept between 0-360)
-	player.rotation += 360.0f * GetFrameTime();
+	/*player.rotation += 360.0f * GetFrameTime();
 	if (player.rotation >= 360.0f)
-		player.rotation -= 360.0f;
+		player.rotation -= 360.0f;*/
 
 	//Keep bird within screen limits
 	float limit = (float)SCREEN_HEIGHT / 2 - (float)player.texture->height / 2;
@@ -207,6 +248,7 @@ void UpdateBirdMovement()
 
 void UpdateScrolling()
 {
+	// GROUND
 	for (GroundBlock& gb : blocks)
 	{
 		gb.position.x -= SCROLL_VEL * GetFrameTime();
@@ -218,6 +260,22 @@ void UpdateScrolling()
 		block.position.x = blocks.back().position.x + block.texture->width * block.scale;
 		blocks.erase(blocks.begin());
 		blocks.push_back(block);
+	}
+
+	// BARRIERS
+	for (Barrier& br : barriers)
+	{
+		br.position.x -= SCROLL_VEL * GetFrameTime();
+}
+	bool firstBarrierNotVisible = (barriers[0].position.x + (barriers[0].texture->width / 2) * barriers[0].scale) < -(SCREEN_WIDTH / 2);
+	if (firstBarrierNotVisible)
+	{
+		Barrier barrier = barriers[0];
+		barrier.position.x = barriers.back().position.x + 250.0f;
+		barrier.position.y = GetRandomValue(-150, 200);
+		barrier.passed = false;
+		barriers.erase(barriers.begin());
+		barriers.push_back(barrier);
 	}
 }
 
@@ -252,6 +310,41 @@ void ResolveCollisions()
 			break;
 		}
 	}
+
+	// Check with barriers
+	for (Barrier& br : barriers)
+	{
+		if (!br.passed) {
+			Rectangle gapCol = GetTransformedCollider(br.gapCollider, br.position, br.scale);
+			gapCol.y *= -1.0f;
+			if (CheckCollisionRecs(birdCollider, gapCol))
+			{
+				TraceLog(LOG_INFO, "BARRIER PASSED");
+				br.passed = true;
+				break;
+			}
+		}
+
+		Rectangle topCol = br.obsCollider;
+		topCol.y += br.topPos;
+		topCol = GetTransformedCollider(topCol, br.position, br.scale);
+		topCol.y *= -1.0f;
+		if (CheckCollisionRecs(birdCollider, topCol))
+		{
+			gameState = GAME_OVER;
+			break;
+		}
+
+		Rectangle botCol = br.obsCollider;
+		botCol.y += br.botPos;
+		botCol = GetTransformedCollider(botCol, br.position, br.scale);
+		botCol.y *= -1.0f;
+		if (CheckCollisionRecs(birdCollider, botCol))
+		{
+			gameState = GAME_OVER;
+			break;
+	}
+}
 }
 
 // Draws texture at center pos, with certain scale and rotation over itself
@@ -276,6 +369,22 @@ static void DrawTexture(Texture2D tex, Vector2 pos, float scale, float rot)
 	DrawTexturePro(tex, source, dest, origin, rot, WHITE);
 }
 
+// For debug collider
+static void DrawCollider(Rectangle collider, Vector2 pos, float scale)
+{
+	collider.x *= scale;
+	collider.y *= scale;
+	collider.width *= scale;
+	collider.height *= scale;
+
+	collider.x += pos.x;
+	collider.y += pos.y;
+
+	collider.y *= -1.0f;
+
+	DrawRectangleLinesEx(collider, 2.0f, PURPLE);
+}
+
 void Render()
 {
 	BeginDrawing();
@@ -286,6 +395,20 @@ void Render()
 
 	// Draw background
 	DrawTexture(*bg.texture, Vector2(0.0f, 0.0f), 0.6f, 0.0f);
+
+	// Draw barriers
+	for (Barrier& br : barriers)
+	{
+		// Draw upper part
+		Vector2 posUpper = br.position;
+		posUpper.y += br.topPos * br.scale;
+		DrawTexture(*br.texture, posUpper, br.scale, 0.0f);
+
+		// Draw bottom part
+		Vector2 posBot = br.position;
+		posBot.y += br.botPos * br.scale;
+		DrawTexture(*br.texture, posBot, br.scale, 0.0f);
+	}
 
 	// Draw ground blocks
 	for (GroundBlock& gb : blocks)
@@ -300,14 +423,31 @@ void Render()
 	DrawLine((int)camera.target.x, -SCREEN_HEIGHT * 10, (int)camera.target.x, SCREEN_HEIGHT * 10, GREEN);
 	DrawLine(-SCREEN_WIDTH * 10, (int)camera.target.y, SCREEN_WIDTH * 10, (int)camera.target.y, GREEN);
 
+	DrawLine(-GetScreenWidth() * 10, -200, GetScreenWidth(), -200, WHITE);
+	DrawLine(-GetScreenWidth() * 10, 150, GetScreenWidth(), 150, WHITE);
+
+
 	if (gameState == GAME_OVER)
 	{
 		DrawText("GAME OVER", 0, 0, 20, RED);
 	}
 
-	Rectangle birdCollider = GetTransformedCollider(player.collider, player.position, player.scale);
-	DrawRectangle((int)birdCollider.x, (int)-birdCollider.y, (int)birdCollider.width, (int)birdCollider.height, PURPLE);
-
+	// Draw colliders
+	DrawCollider(player.collider, player.position, player.scale);
+	for (GroundBlock& gb : blocks)
+	{
+		DrawCollider(gb.collider, gb.position, gb.scale);
+	}
+	for (Barrier& br : barriers)
+	{
+		DrawCollider(br.gapCollider, br.position, br.scale);
+		Vector2 obsTopPos = br.position;
+		obsTopPos.y += br.topPos * br.scale;
+		DrawCollider(br.obsCollider, obsTopPos, br.scale);
+		Vector2 obsBotPos = br.position;
+		obsBotPos.y += br.botPos * br.scale;
+		DrawCollider(br.obsCollider, obsBotPos, br.scale);
+	}
 
 	EndMode2D();
 
