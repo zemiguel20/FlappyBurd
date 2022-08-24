@@ -3,6 +3,8 @@
 #include <raylib.h>
 #include <vector>
 #include <string>
+#include <sstream>
+#include <charconv>
 
 //-----------------------------------------------------------------------------
 // GAME VARIABLES
@@ -73,6 +75,9 @@ static std::vector<Texture2D> textures; // Stores loaded textures
 // CORE LOADING/UNLOADING
 //-----------------------------------------------------------------------------
 
+static void LoadHighscore();
+static void SaveHighscore();
+
 bool Game::Init()
 {
 	SetConfigFlags(FLAG_VSYNC_HINT);
@@ -138,19 +143,51 @@ bool Game::Init()
 
 	barriers = { brBase, brBase, brBase };
 
-	highscore = 0;
+	LoadHighscore();
+
 
 	return true;
 }
 
 void Game::Close()
 {
+	SaveHighscore();
+
 	// Unload Textures
 	for (Texture2D& tex : textures)
 		UnloadTexture(tex);
 
 	// Unload window and render context
 	CloseWindow();
+}
+
+void LoadHighscore()
+{
+	std::stringstream strm;
+	strm << GetApplicationDirectory();
+	strm << "highscore.txt";
+	std::string path = strm.str();
+	if (FileExists(path.c_str()))
+	{
+		char* text = LoadFileText(path.c_str());
+		highscore = std::atoi(text);
+		UnloadFileText(text);
+	}
+	else
+	{
+		highscore = 0;
+	}
+}
+
+void SaveHighscore()
+{
+	std::stringstream strm;
+	strm << GetApplicationDirectory();
+	strm << "highscore.txt";
+	std::string path = strm.str();
+	char text[10];
+	std::to_chars(text, text + 10, highscore);
+	SaveFileText(path.c_str(), text);
 }
 
 //-----------------------------------------------------------------------------
