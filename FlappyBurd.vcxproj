@@ -131,6 +131,14 @@
       <DeploymentContent>true</DeploymentContent>
     </Font>
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="res\sfx_coin.wav">
+      <DeploymentContent>true</DeploymentContent>
+    </Media>
+    <Media Include="res\sfx_jump.mp3">
+      <DeploymentContent>true</DeploymentContent>
+    </Media>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

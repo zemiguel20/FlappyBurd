@@ -71,6 +71,8 @@ static float gameOverCooldown;
 
 static std::vector<Texture2D> textures; // Stores loaded textures
 static Font font; // stores loaded font
+static Sound jumpSound;
+static Sound pointSound;
 
 //-----------------------------------------------------------------------------
 
@@ -89,6 +91,9 @@ bool Game::Init()
 	if (!IsWindowReady())
 		return false;
 
+	// Initialize audio
+	InitAudioDevice();
+
 	// Load Textures
 	textures.push_back(LoadTexture("res/burd.png"));
 	textures.push_back(LoadTexture("res/background-day.png"));
@@ -97,6 +102,10 @@ bool Game::Init()
 
 	// Load Font
 	font = LoadFont("res/04B_30__.TTF");
+
+	// Load Sounds
+	jumpSound = LoadSound("res/sfx_jump.mp3");
+	pointSound = LoadSound("res/sfx_coin.wav");
 
 	// Init camera
 	camera.offset.x = (float)(SCREEN_WIDTH / 2);
@@ -165,6 +174,12 @@ void Game::Close()
 
 	// Unload font
 	UnloadFont(font);
+
+	// Unload sounds
+	UnloadSound(jumpSound);
+	UnloadSound(pointSound);
+
+	CloseAudioDevice();
 
 	// Unload window and render context
 	CloseWindow();
@@ -284,6 +299,7 @@ void UpdateBirdMovement()
 	if (IsKeyPressed(KEY_SPACE))
 	{
 		player.velocity.y = 500.0f;
+		PlaySound(jumpSound);
 	}
 
 	// Acceleration
@@ -387,6 +403,9 @@ void ResolveCollisions()
 					highscore = score;
 
 				br.passed = true;
+
+				PlaySound(pointSound);
+
 				break;
 			}
 		}
