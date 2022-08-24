@@ -138,8 +138,8 @@ bool Game::Init()
 	brBase.gapCollider.height = 50.0f;
 	brBase.gapCollider.x = -(brBase.gapCollider.width / 2);
 	brBase.gapCollider.y = brBase.gapCollider.height / 2;
-	brBase.obsCollider.width = 20.0f;
-	brBase.obsCollider.height = 244.0f;
+	brBase.obsCollider.width = 22.0f;
+	brBase.obsCollider.height = 246.0f;
 	brBase.obsCollider.x = -(brBase.obsCollider.width / 2);
 	brBase.obsCollider.y = brBase.obsCollider.height / 2;
 	brBase.topPos = brBase.gapCollider.y + brBase.obsCollider.y;
