@@ -6,6 +6,8 @@
 #include <sstream>
 #include <charconv>
 
+//#define VISUAL_DEBUG
+
 //-----------------------------------------------------------------------------
 // GAME VARIABLES
 //-----------------------------------------------------------------------------
@@ -138,8 +140,8 @@ bool Game::Init()
 	brBase.gapCollider.height = 50.0f;
 	brBase.gapCollider.x = -(brBase.gapCollider.width / 2);
 	brBase.gapCollider.y = brBase.gapCollider.height / 2;
-	brBase.obsCollider.width = 22.0f;
-	brBase.obsCollider.height = 246.0f;
+	brBase.obsCollider.width = 18.0f;
+	brBase.obsCollider.height = 244.0f;
 	brBase.obsCollider.x = -(brBase.obsCollider.width / 2);
 	brBase.obsCollider.y = brBase.obsCollider.height / 2;
 	brBase.topPos = brBase.gapCollider.y + brBase.obsCollider.y;
@@ -503,32 +505,7 @@ void Render()
 	// Draw bird
 	DrawTexture(*player.texture, player.position, player.scale, player.rotation);
 
-	//Debug lines camera center
-	DrawLine((int)camera.target.x, -SCREEN_HEIGHT * 10, (int)camera.target.x, SCREEN_HEIGHT * 10, GREEN);
-	DrawLine(-SCREEN_WIDTH * 10, (int)camera.target.y, SCREEN_WIDTH * 10, (int)camera.target.y, GREEN);
-
-	DrawLine(-GetScreenWidth() * 10, -200, GetScreenWidth(), -200, WHITE);
-	DrawLine(-GetScreenWidth() * 10, 150, GetScreenWidth(), 150, WHITE);
-
-	// Draw colliders
-	DrawCollider(player.collider, player.position, player.scale);
-	for (GroundBlock& gb : blocks)
-	{
-		DrawCollider(gb.collider, gb.position, gb.scale);
-	}
-	for (Barrier& br : barriers)
-	{
-		DrawCollider(br.gapCollider, br.position, br.scale);
-		Vector2 obsTopPos = br.position;
-		obsTopPos.y += br.topPos * br.scale;
-		DrawCollider(br.obsCollider, obsTopPos, br.scale);
-		Vector2 obsBotPos = br.position;
-		obsBotPos.y += br.botPos * br.scale;
-		DrawCollider(br.obsCollider, obsBotPos, br.scale);
-	}
-
 	EndMode2D();
-
 
 	Text txt;
 	txt.text = "default";
@@ -596,9 +573,38 @@ void Render()
 		DrawTextCentered(txtLabel, -200);
 	}
 
+#ifdef VISUAL_DEBUG
 
-	// DEBUG TEXT
+	BeginMode2D(camera);
+
+	//Debug lines camera center
+	DrawLine((int)camera.target.x, -SCREEN_HEIGHT * 10, (int)camera.target.x, SCREEN_HEIGHT * 10, GREEN);
+	DrawLine(-SCREEN_WIDTH * 10, (int)camera.target.y, SCREEN_WIDTH * 10, (int)camera.target.y, GREEN);
+
+	DrawLine(-GetScreenWidth() * 10, -200, GetScreenWidth(), -200, WHITE);
+	DrawLine(-GetScreenWidth() * 10, 150, GetScreenWidth(), 150, WHITE);
+
+	// Draw colliders
+	DrawCollider(player.collider, player.position, player.scale);
+	for (GroundBlock& gb : blocks)
+	{
+		DrawCollider(gb.collider, gb.position, gb.scale);
+	}
+	for (Barrier& br : barriers)
+	{
+		DrawCollider(br.gapCollider, br.position, br.scale);
+		Vector2 obsTopPos = br.position;
+		obsTopPos.y += br.topPos * br.scale;
+		DrawCollider(br.obsCollider, obsTopPos, br.scale);
+		Vector2 obsBotPos = br.position;
+		obsBotPos.y += br.botPos * br.scale;
+		DrawCollider(br.obsCollider, obsBotPos, br.scale);
+	}
+
+	EndMode2D();
+
 	DrawFPS(0, 0);
+#endif // VISUAL_DEBUG
 
 
 	EndDrawing();
