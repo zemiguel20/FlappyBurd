@@ -68,6 +68,7 @@ static int highscore;
 static float gameOverCooldown;
 
 static std::vector<Texture2D> textures; // Stores loaded textures
+static Font font; // stores loaded font
 
 //-----------------------------------------------------------------------------
 
@@ -91,6 +92,9 @@ bool Game::Init()
 	textures.push_back(LoadTexture("res/background-day.png"));
 	textures.push_back(LoadTexture("res/dirtsprite.png"));
 	textures.push_back(LoadTexture("res/log.png"));
+
+	// Load Font
+	font = LoadFont("res/04B_30__.TTF");
 
 	// Init camera
 	camera.offset.x = (float)(SCREEN_WIDTH / 2);
@@ -156,6 +160,9 @@ void Game::Close()
 	// Unload Textures
 	for (Texture2D& tex : textures)
 		UnloadTexture(tex);
+
+	// Unload font
+	UnloadFont(font);
 
 	// Unload window and render context
 	CloseWindow();
@@ -442,6 +449,26 @@ static void DrawCollider(Rectangle collider, Vector2 pos, float scale)
 	DrawRectangleLinesEx(collider, 2.0f, PURPLE);
 }
 
+typedef struct Text
+{
+	std::string text;
+	Font* font;
+	int textSize;
+	float spacing;
+	Color color;
+}Text;
+
+static void DrawTextCentered(Text txt, int offsetY)
+{
+	Vector2 position;
+	position.x = (SCREEN_WIDTH / 2);
+	position.y = (SCREEN_HEIGHT / 2) - offsetY;
+	Vector2 origin = MeasureTextEx(*txt.font, txt.text.c_str(), txt.textSize, txt.spacing);
+	origin.x *= 0.5f;
+	origin.y *= 0.5f;
+	DrawTextPro(*txt.font, txt.text.c_str(), position, origin, 0.0f, txt.textSize, txt.spacing, txt.color);
+}
+
 void Render()
 {
 	BeginDrawing();
@@ -502,67 +529,71 @@ void Render()
 
 	EndMode2D();
 
+
+	Text txt;
+	txt.text = "default";
+	txt.font = &font;
+	txt.textSize = 20;
+	txt.spacing = 0.0f;
+	txt.color = WHITE;
+
 	// Draw Score
 	if (gameState == RUNNING)
 	{
-		std::string scoreStr = std::to_string(score);
-		Vector2 textPos;
-		textPos.x = (SCREEN_WIDTH / 2) - (MeasureText(scoreStr.c_str(), 30) / 2);
-		textPos.y = 50.0f;
-		DrawText(scoreStr.c_str(), textPos.x, textPos.y, 30, WHITE);
+		Text txtScore = txt;
+		txtScore.text = std::to_string(score);
+		txtScore.textSize = 30;
+		DrawTextCentered(txtScore, 250);
 	}
 
 	// Draw End game panel
 	if (gameState == GAME_OVER)
 	{
-		int posX = (SCREEN_WIDTH / 2) - (MeasureText("GAME OVER", 40) / 2);
-		int posY = (SCREEN_HEIGHT / 2) - 150;
-		DrawText("GAME OVER", posX, posY, 40, RED);
+		Text txtGameOver = txt;
+		txtGameOver.text = "GAME OVER";
+		txtGameOver.textSize = 40;
+		txtGameOver.color = RED;
+		DrawTextCentered(txtGameOver, 150);
 
-		posX = (SCREEN_WIDTH / 2) - 100;
-		posY = (SCREEN_HEIGHT / 2) - 100;
+		int posX = (SCREEN_WIDTH / 2) - 100;
+		int posY = (SCREEN_HEIGHT / 2) - 100;
 		DrawRectangle(posX, posY, 200, 200, BROWN);
 
-		posX = (SCREEN_WIDTH / 2) - (MeasureText("SCORE", 20) / 2);
-		posY = (SCREEN_HEIGHT / 2) - 80;
-		DrawText("SCORE", posX, posY, 20, WHITE);
+		Text txtLabel = txt;
+		txtLabel.text = "SCORE";
+		DrawTextCentered(txtLabel, 60);
 
-		std::string scoreStr = std::to_string(score);
-		posX = (SCREEN_WIDTH / 2) - (MeasureText(scoreStr.c_str(), 20) / 2);
-		posY = (SCREEN_HEIGHT / 2) - 40;
-		DrawText(scoreStr.c_str(), posX, posY, 20, YELLOW);
+		Text txtNumber = txt;
+		txtNumber.color = YELLOW;
+		txtNumber.text = std::to_string(score);
+		DrawTextCentered(txtNumber, 30);
 
-		posX = (SCREEN_WIDTH / 2) - (MeasureText("HIGHSCORE", 20) / 2);
-		posY = (SCREEN_HEIGHT / 2) + 20;
-		DrawText("HIGHSCORE", posX, posY, 20, WHITE);
+		txtLabel.text = "HIGHSCORE";
+		DrawTextCentered(txtLabel, -30);
 
-		std::string highscrStr = std::to_string(highscore);
-		posX = (SCREEN_WIDTH / 2) - (MeasureText(highscrStr.c_str(), 20) / 2);
-		posY = (SCREEN_HEIGHT / 2) + 60;
-		DrawText(highscrStr.c_str(), posX, posY, 20, YELLOW);
+		txtNumber.text = std::to_string(highscore);
+		DrawTextCentered(txtNumber, -60);
 
 		if (gameOverCooldown > 1.0f)
 		{
-			posX = (SCREEN_WIDTH / 2) - (MeasureText("Press SPACE to play", 20) / 2);
-			posY = (SCREEN_HEIGHT / 2) + 150;
-			DrawText("Press SPACE to play", posX, posY, 20, WHITE);
+			txtLabel.text = "Press SPACE to play";
+			DrawTextCentered(txtLabel, -200);
 		}
 	}
 
 	if (gameState == START)
 	{
-		int posX = (SCREEN_WIDTH / 2) - (MeasureText("FLAPPY", 50) / 2);
-		int posY = 50;
-		DrawText("FLAPPY", posX, posY, 50, RED);
+		Text txtTitle = txt;
+		txtTitle.color = RED;
+		txtTitle.textSize = 50;
+		txtTitle.text = "FLAPPY";
+		DrawTextCentered(txtTitle, 200);
+		txtTitle.text = "BURD";
+		DrawTextCentered(txtTitle, 150);
 
-		posX = (SCREEN_WIDTH / 2) - (MeasureText("BURD", 50) / 2);
-		posY = 120;
-		DrawText("BURD", posX, posY, 50, RED);
-
-
-		posX = (SCREEN_WIDTH / 2) - (MeasureText("Press SPACE to play", 20) / 2);
-		posY = (SCREEN_HEIGHT / 2) + 150;
-		DrawText("Press SPACE to play", posX, posY, 20, WHITE);
+		Text txtLabel = txt;
+		txtLabel.text = "Press SPACE to play";
+		DrawTextCentered(txtLabel, -200);
 	}
 
 
