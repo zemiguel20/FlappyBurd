@@ -12,25 +12,26 @@
 // GAME VARIABLES
 //-----------------------------------------------------------------------------
 
-typedef struct Bird {
+typedef struct Bird
+{
 	Vector2 position;
 	float rotation;
 	float scale;
-	Texture2D* texture;
+	Texture2D *texture;
 	Vector2 velocity;
 	Rectangle collider;
 } Bird;
 
 typedef struct Background
 {
-	Texture2D* texture;
+	Texture2D *texture;
 } Background;
 
 typedef struct GroundBlock
 {
 	Vector2 position;
 	float scale;
-	Texture2D* texture;
+	Texture2D *texture;
 	Rectangle collider;
 } GroundBlock;
 
@@ -38,13 +39,13 @@ typedef struct Barrier
 {
 	Vector2 position;
 	float scale;
-	Texture2D* texture;
+	Texture2D *texture;
 
-	float topPos; // Y local position of the top part of the barrier
-	float botPos; // Y local position of the bottom part of the barrier
+	float topPos;		   // Y local position of the top part of the barrier
+	float botPos;		   // Y local position of the bottom part of the barrier
 	Rectangle obsCollider; // Collider dimensions for the obstacle part of the barrier
 	Rectangle gapCollider; // Collider dimensions for the gap of the barrier
-	bool passed; // If barrier was passed or not. Middle collider used for this.
+	bool passed;		   // If barrier was passed or not. Middle collider used for this.
 } Barrier;
 
 enum GameState
@@ -54,7 +55,7 @@ enum GameState
 	GAME_OVER
 };
 
-const int SCREEN_WIDTH = 360; // Reference screen width
+const int SCREEN_WIDTH = 360;  // Reference screen width
 const int SCREEN_HEIGHT = 640; // Reference screen height
 
 const float SCROLL_VEL = 70.0f; // Abs velocity of the scrolling ground and barriers
@@ -70,7 +71,7 @@ static int highscore;
 static float gameOverCooldown;
 
 static std::vector<Texture2D> textures; // Stores loaded textures
-static Font font; // stores loaded font
+static Font font;						// stores loaded font
 static Sound jumpSound;
 static Sound pointSound;
 
@@ -116,12 +117,12 @@ bool Game::Init()
 	camera.zoom = 1.0f;
 
 	// Init player
-	player.position = Vector2(0.0f, 0.0f);
+	player.position = Vector2{0.0f, 0.0f};
 	player.rotation = 0.0f;
 	player.scale = 2.0f;
 	player.texture = &textures[0];
-	player.velocity = Vector2(0.0f, 0.0f);
-	player.collider = Rectangle(-11.0f, 6.5f, 22.0f, 13.0f);
+	player.velocity = Vector2{0.0f, 0.0f};
+	player.collider = Rectangle{-11.0f, 6.5f, 22.0f, 13.0f};
 
 	// Init background
 	bg.texture = &textures[1];
@@ -137,13 +138,13 @@ bool Game::Init()
 	gbBase.collider.x = -(float)gbBase.texture->width / 2;
 	gbBase.collider.y = (float)gbBase.texture->height / 2;
 
-	blocks = { gbBase, gbBase, gbBase, gbBase, gbBase };
+	blocks = {gbBase, gbBase, gbBase, gbBase, gbBase};
 
 	// Init barriers
 	Barrier brBase;
 	brBase.texture = &textures[3];
 	brBase.scale = 3.0f;
-	brBase.position = Vector2(50.0f, 0.0f);
+	brBase.position = Vector2{50.0f, 0.0f};
 	brBase.passed = false;
 	brBase.gapCollider.width = 5.0f;
 	brBase.gapCollider.height = 50.0f;
@@ -156,10 +157,9 @@ bool Game::Init()
 	brBase.topPos = brBase.gapCollider.y + brBase.obsCollider.y;
 	brBase.botPos = -brBase.topPos;
 
-	barriers = { brBase, brBase, brBase };
+	barriers = {brBase, brBase, brBase};
 
 	LoadHighscore();
-
 
 	return true;
 }
@@ -169,7 +169,7 @@ void Game::Close()
 	SaveHighscore();
 
 	// Unload Textures
-	for (Texture2D& tex : textures)
+	for (Texture2D &tex : textures)
 		UnloadTexture(tex);
 
 	// Unload font
@@ -193,7 +193,7 @@ void LoadHighscore()
 	std::string path = strm.str();
 	if (FileExists(path.c_str()))
 	{
-		char* text = LoadFileText(path.c_str());
+		char *text = LoadFileText(path.c_str());
 		highscore = std::atoi(text);
 		UnloadFileText(text);
 	}
@@ -267,14 +267,12 @@ void ResetRun()
 
 	// Set first block on leftmost side
 	blocks[0].position.x =
-		-(SCREEN_WIDTH / 2)
-		+ ((blocks[0].texture->width / 2) * blocks[0].scale);
+		-(SCREEN_WIDTH / 2) + ((blocks[0].texture->width / 2) * blocks[0].scale);
 	// Set other blocks one after another
 	for (int i = 1; i < blocks.size(); i++)
 	{
 		blocks[i].position.x =
-			blocks[i - 1].position.x
-			+ (blocks[i].texture->width * blocks[i].scale);
+			blocks[i - 1].position.x + (blocks[i].texture->width * blocks[i].scale);
 	}
 
 	// Set first barrier at the right side outside of screen
@@ -311,7 +309,7 @@ void UpdateBirdMovement()
 	if (player.rotation >= 360.0f)
 		player.rotation -= 360.0f;*/
 
-		//Keep bird within screen limits
+	// Keep bird within screen limits
 	float limit = (float)SCREEN_HEIGHT / 2 - (float)player.texture->height / 2;
 	if (player.position.y > limit)
 	{
@@ -328,7 +326,7 @@ void UpdateBirdMovement()
 void UpdateScrolling()
 {
 	// GROUND
-	for (GroundBlock& gb : blocks)
+	for (GroundBlock &gb : blocks)
 	{
 		gb.position.x -= SCROLL_VEL * GetFrameTime();
 	}
@@ -342,7 +340,7 @@ void UpdateScrolling()
 	}
 
 	// BARRIERS
-	for (Barrier& br : barriers)
+	for (Barrier &br : barriers)
 	{
 		br.position.x -= SCROLL_VEL * GetFrameTime();
 	}
@@ -379,7 +377,7 @@ void ResolveCollisions()
 	birdCollider.y *= -1.0f; // raylib uses downwards Y
 
 	// Check collisions with ground
-	for (GroundBlock& gb : blocks)
+	for (GroundBlock &gb : blocks)
 	{
 		Rectangle groundCollider = GetTransformedCollider(gb.collider, gb.position, gb.scale);
 		groundCollider.y *= -1.0f; // raylib uses downwards Y
@@ -391,9 +389,10 @@ void ResolveCollisions()
 	}
 
 	// Check with barriers
-	for (Barrier& br : barriers)
+	for (Barrier &br : barriers)
 	{
-		if (!br.passed) {
+		if (!br.passed)
+		{
 			Rectangle gapCol = GetTransformedCollider(br.gapCollider, br.position, br.scale);
 			gapCol.y *= -1.0f;
 			if (CheckCollisionRecs(birdCollider, gapCol))
@@ -435,22 +434,19 @@ void ResolveCollisions()
 // Draws texture at center pos, with certain scale and rotation over itself
 static void DrawTexture(Texture2D tex, Vector2 pos, float scale, float rot)
 {
-	Rectangle source(
+	Rectangle source{
 		0.0f,
 		0.0f,
 		(float)tex.width,
-		(float)tex.height
-	);
-	Rectangle dest(
+		(float)tex.height};
+	Rectangle dest{
 		pos.x,
-		-pos.y, //Screen Y axis is downwards
+		-pos.y, // Screen Y axis is downwards
 		source.width * scale,
-		source.height * scale
-	);
-	Vector2 origin(
+		source.height * scale};
+	Vector2 origin{
 		dest.width * 0.5f,
-		dest.height * 0.5f
-	);
+		dest.height * 0.5f};
 	DrawTexturePro(tex, source, dest, origin, rot, WHITE);
 }
 
@@ -473,11 +469,11 @@ static void DrawCollider(Rectangle collider, Vector2 pos, float scale)
 typedef struct Text
 {
 	std::string text;
-	Font* font;
+	Font *font;
 	int textSize;
 	float spacing;
 	Color color;
-}Text;
+} Text;
 
 static void DrawTextCentered(Text txt, int offsetY)
 {
@@ -499,10 +495,10 @@ void Render()
 	BeginMode2D(camera);
 
 	// Draw background
-	DrawTexture(*bg.texture, Vector2(0.0f, 0.0f), 0.6f, 0.0f);
+	DrawTexture(*bg.texture, Vector2{0.0f, 0.0f}, 0.6f, 0.0f);
 
 	// Draw barriers
-	for (Barrier& br : barriers)
+	for (Barrier &br : barriers)
 	{
 		// Draw upper part
 		Vector2 posUpper = br.position;
@@ -516,7 +512,7 @@ void Render()
 	}
 
 	// Draw ground blocks
-	for (GroundBlock& gb : blocks)
+	for (GroundBlock &gb : blocks)
 	{
 		DrawTexture(*gb.texture, gb.position, gb.scale, 0.0f);
 	}
@@ -596,7 +592,7 @@ void Render()
 
 	BeginMode2D(camera);
 
-	//Debug lines camera center
+	// Debug lines camera center
 	DrawLine((int)camera.target.x, -SCREEN_HEIGHT * 10, (int)camera.target.x, SCREEN_HEIGHT * 10, GREEN);
 	DrawLine(-SCREEN_WIDTH * 10, (int)camera.target.y, SCREEN_WIDTH * 10, (int)camera.target.y, GREEN);
 
@@ -605,11 +601,11 @@ void Render()
 
 	// Draw colliders
 	DrawCollider(player.collider, player.position, player.scale);
-	for (GroundBlock& gb : blocks)
+	for (GroundBlock &gb : blocks)
 	{
 		DrawCollider(gb.collider, gb.position, gb.scale);
 	}
-	for (Barrier& br : barriers)
+	for (Barrier &br : barriers)
 	{
 		DrawCollider(br.gapCollider, br.position, br.scale);
 		Vector2 obsTopPos = br.position;
@@ -624,7 +620,6 @@ void Render()
 
 	DrawFPS(0, 0);
 #endif // VISUAL_DEBUG
-
 
 	EndDrawing();
 }
