@@ -96,17 +96,17 @@ bool Game::Init()
 	InitAudioDevice();
 
 	// Load Textures
-	textures.push_back(LoadTexture("res/burd.png"));
-	textures.push_back(LoadTexture("res/background-day.png"));
-	textures.push_back(LoadTexture("res/dirtsprite.png"));
-	textures.push_back(LoadTexture("res/log.png"));
+	textures.push_back(LoadTexture("assets/burd.png"));
+	textures.push_back(LoadTexture("assets/background-day.png"));
+	textures.push_back(LoadTexture("assets/dirtsprite.png"));
+	textures.push_back(LoadTexture("assets/log.png"));
 
 	// Load Font
-	font = LoadFont("res/04B_30__.TTF");
+	font = LoadFont("assets/04B_30__.TTF");
 
 	// Load Sounds
-	jumpSound = LoadSound("res/sfx_jump.mp3");
-	pointSound = LoadSound("res/sfx_coin.wav");
+	jumpSound = LoadSound("assets/sfx_jump.mp3");
+	pointSound = LoadSound("assets/sfx_coin.wav");
 
 	// Init camera
 	camera.offset.x = (float)(SCREEN_WIDTH / 2);
