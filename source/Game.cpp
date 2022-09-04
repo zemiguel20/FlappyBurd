@@ -6,21 +6,13 @@
 #include <sstream>
 #include <charconv>
 
+#include "Bird.h"
+
 //#define VISUAL_DEBUG
 
 //-----------------------------------------------------------------------------
 // GAME VARIABLES
 //-----------------------------------------------------------------------------
-
-typedef struct Bird
-{
-	Vector2 position;
-	float rotation;
-	float scale;
-	Texture2D *texture;
-	Vector2 velocity;
-	Rectangle collider;
-} Bird;
 
 typedef struct Background
 {
@@ -61,7 +53,7 @@ const int SCREEN_HEIGHT = 640; // Reference screen height
 const float SCROLL_VEL = 70.0f; // Abs velocity of the scrolling ground and barriers
 
 static GameState gameState;
-static Bird player;
+static Bird *player;
 static Background bg;
 static std::vector<GroundBlock> blocks;
 static std::vector<Barrier> barriers;
@@ -96,7 +88,6 @@ bool Game::Init()
 	InitAudioDevice();
 
 	// Load Textures
-	textures.push_back(LoadTexture("assets/burd.png"));
 	textures.push_back(LoadTexture("assets/background-day.png"));
 	textures.push_back(LoadTexture("assets/dirtsprite.png"));
 	textures.push_back(LoadTexture("assets/log.png"));
@@ -105,7 +96,6 @@ bool Game::Init()
 	font = LoadFont("assets/04B_30__.TTF");
 
 	// Load Sounds
-	jumpSound = LoadSound("assets/sfx_jump.mp3");
 	pointSound = LoadSound("assets/sfx_coin.wav");
 
 	// Init camera
@@ -117,19 +107,14 @@ bool Game::Init()
 	camera.zoom = 1.0f;
 
 	// Init player
-	player.position = Vector2{0.0f, 0.0f};
-	player.rotation = 0.0f;
-	player.scale = 2.0f;
-	player.texture = &textures[0];
-	player.velocity = Vector2{0.0f, 0.0f};
-	player.collider = Rectangle{-11.0f, 6.5f, 22.0f, 13.0f};
+	player = new Bird();
 
 	// Init background
-	bg.texture = &textures[1];
+	bg.texture = &textures[0];
 
 	// Init ground blocks
 	GroundBlock gbBase;
-	gbBase.texture = &textures[2];
+	gbBase.texture = &textures[1];
 	gbBase.scale = 2.0f;
 	gbBase.position.x = 0.0f;
 	gbBase.position.y = -300.0f;
@@ -142,7 +127,7 @@ bool Game::Init()
 
 	// Init barriers
 	Barrier brBase;
-	brBase.texture = &textures[3];
+	brBase.texture = &textures[2];
 	brBase.scale = 3.0f;
 	brBase.position = Vector2{50.0f, 0.0f};
 	brBase.passed = false;
@@ -222,7 +207,6 @@ void SaveHighscore()
 
 // Different stages of runtime
 static void ResetRun();
-static void UpdateBirdMovement();
 static void UpdateScrolling();
 static void ResolveCollisions();
 static void Render();
@@ -251,7 +235,7 @@ void Game::Run()
 		}
 		if (gameState == RUNNING)
 		{
-			UpdateBirdMovement();
+			player->Update();
 			UpdateScrolling();
 			ResolveCollisions();
 		}
@@ -263,7 +247,7 @@ void Game::Run()
 void ResetRun()
 {
 	// Player starting position
-	player.position.y = 0.0f;
+	player->transform->position.y = 0.0f;
 
 	// Set first block on leftmost side
 	blocks[0].position.x =
@@ -289,38 +273,6 @@ void ResetRun()
 	gameOverCooldown = 0.0f;
 
 	score = 0;
-}
-
-void UpdateBirdMovement()
-{
-	// Jump
-	if (IsKeyPressed(KEY_SPACE))
-	{
-		player.velocity.y = 500.0f;
-		PlaySound(jumpSound);
-	}
-
-	// Acceleration
-	player.velocity.y += -1200.0f * GetFrameTime();
-	// Apply velocity to position
-	player.position.y += player.velocity.y * GetFrameTime();
-	// Rotation (value kept between 0-360)
-	/*player.rotation += 360.0f * GetFrameTime();
-	if (player.rotation >= 360.0f)
-		player.rotation -= 360.0f;*/
-
-	// Keep bird within screen limits
-	float limit = (float)SCREEN_HEIGHT / 2 - (float)player.texture->height / 2;
-	if (player.position.y > limit)
-	{
-		player.position.y = limit;
-		player.velocity.y = 0.0f;
-	}
-	else if (player.position.y < -limit)
-	{
-		player.position.y = -limit;
-		player.velocity.y = 0.0f;
-	}
 }
 
 void UpdateScrolling()
@@ -373,15 +325,12 @@ static Rectangle GetTransformedCollider(Rectangle collider, Vector2 pos, float s
 
 void ResolveCollisions()
 {
-	Rectangle birdCollider = GetTransformedCollider(player.collider, player.position, player.scale);
-	birdCollider.y *= -1.0f; // raylib uses downwards Y
-
 	// Check collisions with ground
 	for (GroundBlock &gb : blocks)
 	{
 		Rectangle groundCollider = GetTransformedCollider(gb.collider, gb.position, gb.scale);
 		groundCollider.y *= -1.0f; // raylib uses downwards Y
-		if (CheckCollisionRecs(birdCollider, groundCollider))
+		if (CheckCollisionRecs(player->collider->GetWorldRect(), groundCollider))
 		{
 			gameState = GAME_OVER;
 			break;
@@ -395,7 +344,7 @@ void ResolveCollisions()
 		{
 			Rectangle gapCol = GetTransformedCollider(br.gapCollider, br.position, br.scale);
 			gapCol.y *= -1.0f;
-			if (CheckCollisionRecs(birdCollider, gapCol))
+			if (CheckCollisionRecs(player->collider->GetWorldRect(), gapCol))
 			{
 				score++;
 				if (score > highscore)
@@ -413,7 +362,7 @@ void ResolveCollisions()
 		topCol.y += br.topPos;
 		topCol = GetTransformedCollider(topCol, br.position, br.scale);
 		topCol.y *= -1.0f;
-		if (CheckCollisionRecs(birdCollider, topCol))
+		if (CheckCollisionRecs(player->collider->GetWorldRect(), topCol))
 		{
 			gameState = GAME_OVER;
 			break;
@@ -423,7 +372,7 @@ void ResolveCollisions()
 		botCol.y += br.botPos;
 		botCol = GetTransformedCollider(botCol, br.position, br.scale);
 		botCol.y *= -1.0f;
-		if (CheckCollisionRecs(birdCollider, botCol))
+		if (CheckCollisionRecs(player->collider->GetWorldRect(), botCol))
 		{
 			gameState = GAME_OVER;
 			break;
@@ -517,10 +466,9 @@ void Render()
 		DrawTexture(*gb.texture, gb.position, gb.scale, 0.0f);
 	}
 
-	// Draw bird
-	DrawTexture(*player.texture, player.position, player.scale, player.rotation);
-
 	EndMode2D();
+	// Draw bird
+	player->renderer->Render(camera);
 
 	Text txt;
 	txt.text = "default";
