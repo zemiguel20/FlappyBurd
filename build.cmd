@@ -4,7 +4,11 @@ set RAYLIB_FOLDER=.\dependencies\raylib
 
 if not exist %BUILD_FOLDER%\ mkdir %BUILD_FOLDER%
 
-clang++ source\*.cpp source\Core\*.cpp -Wall -o %BUILD_FOLDER%\FlappyBurd.exe ^
+clang++ ^
+source\*.cpp ^
+source\Core\*.cpp ^
+-Wall ^
+-o %BUILD_FOLDER%\FlappyBurd.exe ^
 -std=c++17 ^
 -O3 ^
 -I %RAYLIB_FOLDER%\include ^
