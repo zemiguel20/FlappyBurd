@@ -1,16 +1,18 @@
 #include "FlappyBurd.h"
 
-Core::App *Core::CreateApp()
+App *CreateApp()
 {
     return new FlappyBurd();
 }
 
 void FlappyBurd::Start()
 {
+    // TODO: IMPLEMENT
+
     // Setup window
     // TODO: Query display to determine resolution
-    SetWindowSize(360, 640);
-    SetWindowTitle("FlappyBurd");
+    Window::SetSize(360, 640);
+    Window::SetTitle("FlappyBurd");
 
     player = new Bird();
     cam = new Camera2D();

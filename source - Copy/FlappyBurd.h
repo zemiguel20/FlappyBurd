@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Core/Core.h" // THIS INCLUDE SHOULD BE ON TOP
-using namespace Core;
-
 #include "Bird.hpp"
+
+using namespace Core;
 
 class FlappyBurd : public App
 {

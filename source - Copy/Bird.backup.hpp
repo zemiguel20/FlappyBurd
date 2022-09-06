@@ -1,15 +1,40 @@
-#include "Bird.h"
+#pragma once
+
+#include "Core/NewCore.h"
+
+class Bird
+{
+public:
+    core::Transform2D *transform;
+    core::SpriteRenderer *renderer;
+    core::RectCollider2D *collider;
+
+private:
+    core::Texture *texture; // Bird texture asset
+
+    Sound jumpSound; // Bird jump sound asset
+
+    float velocity; // Y velocity
+
+public:
+    Bird();
+    ~Bird();
+    void Update();
+};
 
 Bird::Bird()
 {
-    transform = new Transform2D();
+    transform = new core::Transform2D();
     transform->scale = 2.0f;
 
-    texture = LoadTexture("assets/burd.png");
+    texture = new core::Texture("assets/burd.png");
     jumpSound = LoadSound("assets/sfx_jump.mp3");
 
-    renderer = new SpriteRenderer(*transform, texture);
-    collider = new RectCollider2D({20.0f, 12.0f}, {0.0f, 0.0f}, *transform);
+    renderer = new core::SpriteRenderer(*transform, *texture);
+    collider = new core::RectCollider2D(
+        core::Vector2(20.0f, 12.0f),
+        core::Vector2(),
+        *transform);
 
     velocity = 0.0f;
 }
@@ -19,8 +44,7 @@ Bird::~Bird()
     delete transform;
     delete renderer;
     delete collider;
-
-    UnloadTexture(texture);
+    delete texture;
     UnloadSound(jumpSound);
 }
 

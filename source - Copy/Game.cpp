@@ -6,26 +6,15 @@
 #include <sstream>
 #include <charconv>
 
-#include "Bird.h"
+#include "Bird.backup.hpp"
+#include "Background.hpp"
+#include "GroundBlock.hpp"
 
 //#define VISUAL_DEBUG
 
 //-----------------------------------------------------------------------------
 // GAME VARIABLES
 //-----------------------------------------------------------------------------
-
-typedef struct Background
-{
-	Texture2D *texture;
-} Background;
-
-typedef struct GroundBlock
-{
-	Vector2 position;
-	float scale;
-	Texture2D *texture;
-	Rectangle collider;
-} GroundBlock;
 
 typedef struct Barrier
 {
@@ -54,7 +43,7 @@ const float SCROLL_VEL = 70.0f; // Abs velocity of the scrolling ground and barr
 
 static GameState gameState;
 static Bird *player;
-static Background bg;
+static Background *bg;
 static std::vector<GroundBlock> blocks;
 static std::vector<Barrier> barriers;
 static Camera2D camera;
@@ -88,8 +77,6 @@ bool Game::Init()
 	InitAudioDevice();
 
 	// Load Textures
-	textures.push_back(LoadTexture("assets/background-day.png"));
-	textures.push_back(LoadTexture("assets/dirtsprite.png"));
 	textures.push_back(LoadTexture("assets/log.png"));
 
 	// Load Font
@@ -109,25 +96,15 @@ bool Game::Init()
 	// Init player
 	player = new Bird();
 
-	// Init background
-	bg.texture = &textures[0];
+	bg = new Background();
 
 	// Init ground blocks
 	GroundBlock gbBase;
-	gbBase.texture = &textures[1];
-	gbBase.scale = 2.0f;
-	gbBase.position.x = 0.0f;
-	gbBase.position.y = -300.0f;
-	gbBase.collider.width = (float)gbBase.texture->width;
-	gbBase.collider.height = (float)gbBase.texture->height;
-	gbBase.collider.x = -(float)gbBase.texture->width / 2;
-	gbBase.collider.y = (float)gbBase.texture->height / 2;
-
 	blocks = {gbBase, gbBase, gbBase, gbBase, gbBase};
 
 	// Init barriers
 	Barrier brBase;
-	brBase.texture = &textures[2];
+	brBase.texture = &textures[1];
 	brBase.scale = 3.0f;
 	brBase.position = Vector2{50.0f, 0.0f};
 	brBase.passed = false;
@@ -151,6 +128,9 @@ bool Game::Init()
 
 void Game::Close()
 {
+	delete player;
+	delete bg;
+
 	SaveHighscore();
 
 	// Unload Textures
@@ -250,13 +230,15 @@ void ResetRun()
 	player->transform->position.y = 0.0f;
 
 	// Set first block on leftmost side
-	blocks[0].position.x =
-		-(SCREEN_WIDTH / 2) + ((blocks[0].texture->width / 2) * blocks[0].scale);
+	// blocks[0].transform->position.x =
+	// 	-(SCREEN_WIDTH / 2) + ((blocks[0].texture->Width() / 2) * blocks[0].scale);
+	blocks[0].transform->position.x =
+		-(SCREEN_WIDTH / 2) + 100 * blocks[0].transform->scale;
 	// Set other blocks one after another
 	for (int i = 1; i < blocks.size(); i++)
 	{
-		blocks[i].position.x =
-			blocks[i - 1].position.x + (blocks[i].texture->width * blocks[i].scale);
+		blocks[i].transform->position.x =
+			blocks[i - 1].transform->position.x + 100 * blocks[i].transform->scale;
 	}
 
 	// Set first barrier at the right side outside of screen
@@ -280,16 +262,16 @@ void UpdateScrolling()
 	// GROUND
 	for (GroundBlock &gb : blocks)
 	{
-		gb.position.x -= SCROLL_VEL * GetFrameTime();
+		gb.transform->position.x -= SCROLL_VEL * GetFrameTime();
 	}
-	bool firstBlockNotVisible = (blocks[0].position.x + (blocks[0].texture->width / 2) * blocks[0].scale) < -(SCREEN_WIDTH / 2);
-	if (firstBlockNotVisible)
-	{
-		GroundBlock block = blocks[0];
-		block.position.x = blocks.back().position.x + block.texture->width * block.scale;
-		blocks.erase(blocks.begin());
-		blocks.push_back(block);
-	}
+	// bool firstBlockNotVisible = (blocks[0].position.x + (blocks[0].texture->width / 2) * blocks[0].scale) < -(SCREEN_WIDTH / 2);
+	// if (firstBlockNotVisible)
+	// {
+	// 	GroundBlock block = blocks[0];
+	// 	block.position.x = blocks.back().position.x + block.texture->width * block.scale;
+	// 	blocks.erase(blocks.begin());
+	// 	blocks.push_back(block);
+	// }
 
 	// BARRIERS
 	for (Barrier &br : barriers)
@@ -325,59 +307,59 @@ static Rectangle GetTransformedCollider(Rectangle collider, Vector2 pos, float s
 
 void ResolveCollisions()
 {
-	// Check collisions with ground
-	for (GroundBlock &gb : blocks)
-	{
-		Rectangle groundCollider = GetTransformedCollider(gb.collider, gb.position, gb.scale);
-		groundCollider.y *= -1.0f; // raylib uses downwards Y
-		if (CheckCollisionRecs(player->collider->GetWorldRect(), groundCollider))
-		{
-			gameState = GAME_OVER;
-			break;
-		}
-	}
+	// // Check collisions with ground
+	// for (GroundBlock &gb : blocks)
+	// {
+	// 	Rectangle groundCollider = GetTransformedCollider(gb.collider, gb.position, gb.scale);
+	// 	groundCollider.y *= -1.0f; // raylib uses downwards Y
+	// 	if (CheckCollisionRecs(player->collider->GetWorldRect(), groundCollider))
+	// 	{
+	// 		gameState = GAME_OVER;
+	// 		break;
+	// 	}
+	// }
 
-	// Check with barriers
-	for (Barrier &br : barriers)
-	{
-		if (!br.passed)
-		{
-			Rectangle gapCol = GetTransformedCollider(br.gapCollider, br.position, br.scale);
-			gapCol.y *= -1.0f;
-			if (CheckCollisionRecs(player->collider->GetWorldRect(), gapCol))
-			{
-				score++;
-				if (score > highscore)
-					highscore = score;
+	// // Check with barriers
+	// for (Barrier &br : barriers)
+	// {
+	// 	if (!br.passed)
+	// 	{
+	// 		Rectangle gapCol = GetTransformedCollider(br.gapCollider, br.position, br.scale);
+	// 		gapCol.y *= -1.0f;
+	// 		if (CheckCollisionRecs(player->collider->GetWorldRect(), gapCol))
+	// 		{
+	// 			score++;
+	// 			if (score > highscore)
+	// 				highscore = score;
 
-				br.passed = true;
+	// 			br.passed = true;
 
-				PlaySound(pointSound);
+	// 			PlaySound(pointSound);
 
-				break;
-			}
-		}
+	// 			break;
+	// 		}
+	// 	}
 
-		Rectangle topCol = br.obsCollider;
-		topCol.y += br.topPos;
-		topCol = GetTransformedCollider(topCol, br.position, br.scale);
-		topCol.y *= -1.0f;
-		if (CheckCollisionRecs(player->collider->GetWorldRect(), topCol))
-		{
-			gameState = GAME_OVER;
-			break;
-		}
+	// 	Rectangle topCol = br.obsCollider;
+	// 	topCol.y += br.topPos;
+	// 	topCol = GetTransformedCollider(topCol, br.position, br.scale);
+	// 	topCol.y *= -1.0f;
+	// 	if (CheckCollisionRecs(player->collider->GetWorldRect(), topCol))
+	// 	{
+	// 		gameState = GAME_OVER;
+	// 		break;
+	// 	}
 
-		Rectangle botCol = br.obsCollider;
-		botCol.y += br.botPos;
-		botCol = GetTransformedCollider(botCol, br.position, br.scale);
-		botCol.y *= -1.0f;
-		if (CheckCollisionRecs(player->collider->GetWorldRect(), botCol))
-		{
-			gameState = GAME_OVER;
-			break;
-		}
-	}
+	// 	Rectangle botCol = br.obsCollider;
+	// 	botCol.y += br.botPos;
+	// 	botCol = GetTransformedCollider(botCol, br.position, br.scale);
+	// 	botCol.y *= -1.0f;
+	// 	if (CheckCollisionRecs(player->collider->GetWorldRect(), botCol))
+	// 	{
+	// 		gameState = GAME_OVER;
+	// 		break;
+	// 	}
+	// }
 }
 
 // Draws texture at center pos, with certain scale and rotation over itself
@@ -441,10 +423,10 @@ void Render()
 
 	ClearBackground(RAYWHITE);
 
-	BeginMode2D(camera);
-
 	// Draw background
-	DrawTexture(*bg.texture, Vector2{0.0f, 0.0f}, 0.6f, 0.0f);
+	//bg->renderer->Render(camera);
+
+	BeginMode2D(camera);
 
 	// Draw barriers
 	for (Barrier &br : barriers)
@@ -463,12 +445,12 @@ void Render()
 	// Draw ground blocks
 	for (GroundBlock &gb : blocks)
 	{
-		DrawTexture(*gb.texture, gb.position, gb.scale, 0.0f);
+		//DrawTexture(*gb.texture, gb.position, gb.scale, 0.0f);
 	}
 
 	EndMode2D();
 	// Draw bird
-	player->renderer->Render(camera);
+	//player->renderer->Render(camera);
 
 	Text txt;
 	txt.text = "default";

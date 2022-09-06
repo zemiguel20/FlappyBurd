@@ -1,93 +1,76 @@
 #pragma once
 
-//------------------------------------------------------------------------------
-// APP BASE CLASS
-//------------------------------------------------------------------------------
-// Base App class.
-// Derived class should override functions to implement specific app behaviour.
-// Provided Main creates app and calls functions.
-class App
+namespace Core
 {
-    // TODO: use startup flags with defaults that can be overriden by derived
-public:
-    // Initialize core systems (window, audio, etc.)
-    // Returns success result of initialization
-    virtual bool Init() final;
+    //--------------------------------------------------------------------------
+    // APP BASE CLASS
+    //--------------------------------------------------------------------------
 
-    // Shutdown core systems and application
-    virtual void Shutdown() final;
+    // Base App class.
+    // Derived class should override functions to implement
+    // specific app behaviour.
+    // Provided Main creates app and calls functions.
+    class App
+    {
+        // TODO: use startup flags with defaults that can be overriden by derived
+    public:
+        // Initialize core systems (window, audio, etc.)
+        // Returns success result of initialization
+        virtual bool Init() final;
 
-    // Initialize application state and variables
-    virtual void Start(){};
+        // Shutdown core systems
+        virtual void Shutdown() final;
 
-    // Called before Update.
-    // Tasks like cleaning render buffer are done here.
-    virtual void PrepareFrame();
+        // Initialize application
+        virtual void Start(){};
 
-    // Update application state
-    virtual void Update(){};
+        // Called before Update.
+        // Tasks like cleaning render buffer are done here.
+        virtual void PrepareFrame();
 
-    // Called after Update.
-    // Tasks like swapping render buffers are done here.
-    virtual void FinishFrame();
+        // Update application state
+        virtual void Update(){};
 
-    // Cleanup application state and variables
-    virtual void Close(){};
+        // Render frame for current application state
+        virtual void Render(){};
 
-    // Virtual destructor allows deleting instances
-    virtual ~App(){};
-};
+        // Called after Render.
+        // Tasks like swapping render buffers are done here.
+        virtual void FinishFrame();
 
-// MUST BE IMPLEMENTED!
-// Implementation should return the desired derived App instance.
-// Returns instance of derived App object.
-App *CreateApp();
-//------------------------------------------------------------------------------
+        // Cleanup application and close
+        virtual void Close(){};
 
-//------------------------------------------------------------------------------
-// WINDOW MANAGEMENT FUNCTIONS
-//------------------------------------------------------------------------------
-namespace Window
-{
+        // Virtual destructor allows deleting instances
+        virtual ~App(){};
+    };
+
+    // MUST BE IMPLEMENTED!
+    // Implementation should return the desired derived App instance.
+    // Returns instance of derived App object.
+    App *CreateApp();
+    //--------------------------------------------------------------------------
+
+    //--------------------------------------------------------------------------
+    // WINDOW MANAGEMENT FUNCTIONS
+    //--------------------------------------------------------------------------
+
     // Sets the window size/resolution
-    void SetSize(int width, int height);
+    void SetWindowSize(int width, int height);
     // Sets the window title
-    void SetTitle(const char *title);
-} // namespace Window
-//------------------------------------------------------------------------------
+    void SetWindowTitle(const char *title);
 
-#include <raylib.h>
+    //--------------------------------------------------------------------------
 
-class Transform2D
-{
-public:
-    Vector2 position;
-    float rotation; // degrees
-    float scale;
+    //--------------------------------------------------------------------------
+    // CAMERA
+    //--------------------------------------------------------------------------
 
-    Transform2D();
-};
+    // 2D Camera
+    class Camera2D
+    {
+    };
 
-class SpriteRenderer
-{
-private:
-    Transform2D *transform;
-    Texture2D *texture;
+    //--------------------------------------------------------------------------
 
-public:
-    SpriteRenderer(Transform2D &, Texture2D &);
-    void Render(Camera2D);
-};
-
-class RectCollider2D
-{
-private:
-    Transform2D *transform;
-    Rectangle localCollider;
-
-public:
-    RectCollider2D(Vector2 size, Vector2 offset, Transform2D &);
-
-    // Gets the collider rect with transform applied
-    Rectangle GetWorldRect();
-};
+} // namespace Core

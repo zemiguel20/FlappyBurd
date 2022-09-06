@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------------
 int main()
 {
-    Core::App *app = Core::CreateApp();
+    App *app = CreateApp();
 
     if (app->Init())
     {
@@ -32,7 +32,7 @@ int main()
 //------------------------------------------------------------------------------
 // APP BASE CLASS
 //------------------------------------------------------------------------------
-bool Core::App::Init()
+bool App::Init()
 {
     ::SetConfigFlags(FLAG_VSYNC_HINT);
     // Init window and rendering
@@ -46,20 +46,20 @@ bool Core::App::Init()
     return true;
 }
 
-void Core::App::Shutdown()
+void App::Shutdown()
 {
     ::CloseAudioDevice();
     ::CloseWindow();
 }
 
-void Core::App::PrepareFrame()
+void App::PrepareFrame()
 {
     // Set up a white canvas buffer
     BeginDrawing();
     ClearBackground(RAYWHITE);
 }
 
-void Core::App::FinishFrame()
+void App::FinishFrame()
 {
     // End frame drawing and poll input
     EndDrawing();
@@ -69,11 +69,11 @@ void Core::App::FinishFrame()
 //------------------------------------------------------------------------------
 // WINDOW MANAGEMENT FUNCTIONS
 //------------------------------------------------------------------------------
-void Core::SetWindowSize(int width, int height)
+void Window::SetSize(int width, int height)
 {
     ::SetWindowSize(width, height);
 }
-void Core::SetWindowTitle(const char *title)
+void Window::SetTitle(const char *title)
 {
     ::SetWindowTitle(title);
 }
