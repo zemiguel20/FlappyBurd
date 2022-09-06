@@ -23,7 +23,7 @@ void FlappyBurd::Update()
 
 void FlappyBurd::Render()
 {
-    player->Render(cam);
+    player->Render(*cam);
 }
 
 void FlappyBurd::Close()
