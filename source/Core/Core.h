@@ -3,56 +3,59 @@
 //------------------------------------------------------------------------------
 // APP BASE CLASS
 //------------------------------------------------------------------------------
-
-// Use as base class for the specific app.
-// Concrete class should implement Start, Update and Close
+// Base App class.
+// Derived class should override functions to implement specific app behaviour.
+// Provided Main creates app and calls functions.
 class App
 {
-private:
-    // Initialize subsystems, like window, audio, etc.
-    bool AppInit();
-    // Uninitialize subsystems
-    void AppClose();
-    // Check if window should close. Used for game loop
-    bool WindowShouldClose();
-    // Call at start of frame loop
-    void PrepareFrame();
-    // Call at end of frame loop
-    void FinishFrame();
-
-protected:
-    int winW;            // Starting window width
-    int winH;            // Starting window height
-    const char *winName; // Window name
-
-    virtual void Start(){};  // Initialize app variables
-    virtual void Update(){}; // Update game logic. Call every frame
-    virtual void Close(){};  // Cleanup app variables
+    // TODO: use startup flags with defaults that can be overriden by derived
 public:
-    App()
-        : winW(1024), winH(720), winName("Empty") {}
+    // Initialize core systems (window, audio, etc.)
+    // Returns success result of initialization
+    virtual bool Init() final;
 
-    virtual void Run() final
-    {
-        if (AppInit())
-        {
-            Start(); // override
-            while (!WindowShouldClose())
-            {
-                PrepareFrame();
-                Update(); // override
-                FinishFrame();
-            }
-            Close(); // override
-        }
+    // Shutdown core systems and application
+    virtual void Shutdown() final;
 
-        AppClose();
-    }
+    // Initialize application state and variables
+    virtual void Start(){};
+
+    // Called before Update.
+    // Tasks like cleaning render buffer are done here.
+    virtual void PrepareFrame();
+
+    // Update application state
+    virtual void Update(){};
+
+    // Called after Update.
+    // Tasks like swapping render buffers are done here.
+    virtual void FinishFrame();
+
+    // Cleanup application state and variables
+    virtual void Close(){};
+
+    // Virtual destructor allows deleting instances
+    virtual ~App(){};
 };
 
-// MUST BE IMPLEMENTED. Should return an instance of the specific class
-App CreateApp();
+// MUST BE IMPLEMENTED!
+// Implementation should return the desired derived App instance.
+// Returns instance of derived App object.
+App *CreateApp();
 //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// WINDOW MANAGEMENT FUNCTIONS
+//------------------------------------------------------------------------------
+namespace Window
+{
+    // Sets the window size/resolution
+    void SetSize(int width, int height);
+    // Sets the window title
+    void SetTitle(const char *title);
+} // namespace Window
+//------------------------------------------------------------------------------
+
 #include <raylib.h>
 
 class Transform2D

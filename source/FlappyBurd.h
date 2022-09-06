@@ -4,11 +4,9 @@
 
 class FlappyBurd : public App
 {
-protected:
+
+public:
     void Start() override;
     void Update() override;
     void Close() override;
-
-public:
-    FlappyBurd();
 };

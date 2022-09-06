@@ -1,21 +1,18 @@
 #include "FlappyBurd.h"
 
-App CreateApp()
+App* CreateApp()
 {
-    return FlappyBurd();
-}
-
-FlappyBurd::FlappyBurd()
-{
-    // TODO: Query display to determine resolution
-    winW = 360;
-    winH = 640;
-    winName = "FlappyBurd";
+    return new FlappyBurd();
 }
 
 void FlappyBurd::Start()
 {
     // TODO: IMPLEMENT
+
+    // Setup window
+    // TODO: Query display to determine resolution
+    Window::SetSize(360, 640);
+    Window::SetTitle("FlappyBurd");
 }
 
 void FlappyBurd::Update()

@@ -7,7 +7,23 @@
 //------------------------------------------------------------------------------
 int main()
 {
-    CreateApp().Run();
+    App *app = CreateApp();
+
+    if (app->Init())
+    {
+        app->Start(); // override
+        while (!::WindowShouldClose())
+        {
+            app->PrepareFrame();
+            app->Update(); // override
+            app->FinishFrame();
+        }
+        app->Close(); // override
+    }
+
+    app->Shutdown();
+    delete app;
+
     return 0;
 }
 //------------------------------------------------------------------------------
@@ -15,11 +31,11 @@ int main()
 //------------------------------------------------------------------------------
 // APP BASE CLASS
 //------------------------------------------------------------------------------
-bool App::AppInit()
+bool App::Init()
 {
     ::SetConfigFlags(FLAG_VSYNC_HINT);
     // Init window and rendering
-    ::InitWindow(winW, winH, winName);
+    ::InitWindow(1240, 720, "Default");
     if (!::IsWindowReady())
         return false;
 
@@ -29,15 +45,10 @@ bool App::AppInit()
     return true;
 }
 
-void App::AppClose()
+void App::Shutdown()
 {
     ::CloseAudioDevice();
     ::CloseWindow();
-}
-
-bool App::WindowShouldClose()
-{
-    return ::WindowShouldClose();
 }
 
 void App::PrepareFrame()
@@ -51,5 +62,18 @@ void App::FinishFrame()
 {
     // End frame drawing and poll input
     EndDrawing();
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// WINDOW MANAGEMENT FUNCTIONS
+//------------------------------------------------------------------------------
+void Window::SetSize(int width, int height)
+{
+    ::SetWindowSize(width, height);
+}
+void Window::SetTitle(const char *title)
+{
+    ::SetWindowTitle(title);
 }
 //------------------------------------------------------------------------------
