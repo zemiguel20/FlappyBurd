@@ -159,4 +159,14 @@ namespace Core
     // Uses given camera to render sprite
     void RenderSprite(const Camera2D &, const Transform2D &, const Texture &);
     //--------------------------------------------------------------------------
+
+    //--------------------------------------------------------------------------
+    // TIME
+    //--------------------------------------------------------------------------
+    namespace Time
+    {
+        // Get delta time between frames
+        float DeltaTime();
+    } // namespace Time
+    //--------------------------------------------------------------------------
 } // namespace Core
