@@ -14,6 +14,7 @@ void FlappyBurd::Start()
 
     player = new Bird();
     cam = new Camera2D();
+    bg = new Background();
 }
 
 void FlappyBurd::Update()
@@ -23,11 +24,13 @@ void FlappyBurd::Update()
 
 void FlappyBurd::Render()
 {
+    bg->Render(*cam);
     player->Render(*cam);
 }
 
 void FlappyBurd::Close()
 {
+    delete bg;
     delete player;
     delete cam;
 }

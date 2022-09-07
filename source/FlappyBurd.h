@@ -4,13 +4,14 @@
 using namespace Core;
 
 #include "Bird.hpp"
+#include "Background.hpp"
 
 class FlappyBurd : public App
 {
 private:
-    Bird *player;  // Player instance
-    Camera2D *cam; // Camera instance
-
+    Camera2D *cam;  // Camera instance
+    Bird *player;   // Player instance
+    Background *bg; // Background sprite instance
 public:
     void Start() override;
     void Update() override;
