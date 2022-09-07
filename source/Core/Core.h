@@ -20,15 +20,12 @@ namespace Core
         // Returns success result of initialization
         virtual bool Init() final;
 
-        // Shutdown core systems
-        virtual void Shutdown() final;
-
         // Initialize application
         virtual void Start(){};
 
         // Called before Update.
         // Tasks like cleaning render buffer are done here.
-        virtual void PrepareFrame();
+        virtual void PrepareFrame() final;
 
         // Update application state
         virtual void Update(){};
@@ -38,10 +35,13 @@ namespace Core
 
         // Called after Render.
         // Tasks like swapping render buffers are done here.
-        virtual void FinishFrame();
+        virtual void FinishFrame() final;
 
         // Cleanup application and close
         virtual void Close(){};
+
+        // Shutdown core systems
+        virtual void Shutdown() final;
 
         // Virtual destructor allows deleting instances
         virtual ~App(){};
