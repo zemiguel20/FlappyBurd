@@ -9,10 +9,13 @@ public:
     {
         tf = Transform2D(Vector2(), 0.0f, 2.0f);
         tex = new Texture("assets/burd.png");
+        Log::Info("Bird loaded");
     };
+
     ~Bird()
     {
         delete tex;
+        Log::Info("Bird unloaded");
     };
 
     void Update(){};

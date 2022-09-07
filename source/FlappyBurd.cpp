@@ -7,6 +7,7 @@ Core::App *Core::CreateApp()
 
 void FlappyBurd::Start()
 {
+    Log::Info("Loading FlappyBurd...");
     // Setup window
     // TODO: Query display to determine resolution
     SetWindowSize(Config::REF_SCREEN_W, Config::REF_SCREEN_H);
@@ -16,6 +17,8 @@ void FlappyBurd::Start()
     cam = new Camera2D();
     bg = new Background();
     sgrnd = new ScrollingGround();
+
+    Log::Info("FlappyBurd loaded");
 }
 
 void FlappyBurd::Update()
@@ -33,7 +36,9 @@ void FlappyBurd::Render()
 
 void FlappyBurd::Close()
 {
+    Log::Info("Unloading FlappyBurd...");
     delete bg;
     delete player;
     delete cam;
+    Log::Info("FlappyBurd unloaded");
 }

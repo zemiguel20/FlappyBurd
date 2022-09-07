@@ -10,11 +10,13 @@ public:
         tf = Transform2D();
         tf.scale = 0.6f;
         tex = new Texture("assets/background-day.png");
+        Log::Info("Background loaded");
     }
 
     ~Background()
     {
         delete tex;
+        Log::Info("Background unloaded");
     }
 
     void Render(const Camera2D &cam)

@@ -26,12 +26,15 @@ public:
         // Set one after another
         for (int i = 0; i < blocksTf.size(); i++)
             blocksTf[i].position.x += i * tex->Width() * base.scale;
+
+        Log::Info("Scrolling Ground loaded");
     };
 
     ~ScrollingGround()
     {
         blocksTf.clear();
         delete tex;
+        Log::Info("Scrolling Ground unloaded");
     };
 
     void Update()
