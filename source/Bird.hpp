@@ -12,7 +12,7 @@ private:
 public:
     Bird()
     {
-        tf = Transform2D(Vector2(), 0.0f, 2.0f);
+        tf = Transform2D(Vector2(-100.0f, 0.0f), 0.0f, 2.0f);
         tex = new Texture("assets/burd.png");
         Log::Info("Bird loaded");
     };
