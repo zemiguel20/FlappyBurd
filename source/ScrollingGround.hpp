@@ -30,7 +30,8 @@ public:
 
         // Set one after another
         for (int i = 0; i < blocksTf.size(); i++)
-            blocksTf[i].position.x += i * tex->Width() * base.scale;
+            blocksTf[i].position.x +=
+                i * tex->Width() * base.scale;
 
         Log::Info("Scrolling Ground loaded");
     };
@@ -47,12 +48,14 @@ public:
         // Move ground
         for (Transform2D &tf : blocksTf)
         {
-            tf.position.x -= Config::SCROLL_VEL * Time::DeltaTime();
+            tf.position.x -= Config::SCROLL_VEL *
+                             Time::DeltaTime();
         }
         // Check to move first block to the back
         bool firstNotVisible =
             blocksTf[0].position.x <
-            -(Config::REF_SCREEN_W / 2) - tex->Width() / 2 * blocksTf[0].scale;
+            -(Config::REF_SCREEN_W / 2) -
+                tex->Width() / 2 * blocksTf[0].scale;
         if (firstNotVisible)
         {
             Transform2D block = blocksTf[0];
