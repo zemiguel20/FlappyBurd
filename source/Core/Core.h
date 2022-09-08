@@ -191,4 +191,20 @@ namespace Core
     // Get random number in range [min, max]
     float Random(float min, float max);
     //-----------------------------------------------------------
+
+    //-----------------------------------------------------------
+    // INPUT
+    //-----------------------------------------------------------
+    namespace Input
+    {
+        enum KeyCode
+        {
+            KEY_SPACE = 32
+        };
+
+        // Check if a key has been pressed this frame
+        bool IsKeyPressed(KeyCode);
+    } // namespace Input
+    //-----------------------------------------------------------
+
 } // namespace Core

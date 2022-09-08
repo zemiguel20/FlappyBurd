@@ -16,4 +16,9 @@ namespace Config
     const float BARRIER_MIN_SPAWN = -150.0f;
     // Maximum random Y for barrier spawn
     const float BARRIER_MAX_SPAWN = 200.0f;
+
+    // Upwards velocity when bird flaps
+    const float BIRD_JUMP = 500.0f;
+    // Gravity
+    const float BIRD_GRAVITY = 1200.0f;
 } // namespace Config
