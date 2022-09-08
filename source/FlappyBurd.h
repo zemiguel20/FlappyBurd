@@ -5,6 +5,7 @@ using namespace Core;
 #include "Bird.hpp"
 #include "Background.hpp"
 #include "ScrollingGround.hpp"
+#include "ScrollingBarriers.hpp"
 
 class FlappyBurd : public App
 {
@@ -13,6 +14,7 @@ private:
     Bird *player;
     Background *bg;
     ScrollingGround *sgrnd;
+    ScrollingBarriers *sbrrs;
 
 public:
     void Start() override;

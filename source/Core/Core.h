@@ -180,12 +180,15 @@ namespace Core
     //-----------------------------------------------------------
 
     //-----------------------------------------------------------
-    // LOG
+    // UTILITY
     //-----------------------------------------------------------
     namespace Log
     {
         // Log a Info message to log file
         void Info(const char *);
     } // namespace Log
+
+    // Get random number in range [min, max]
+    float Random(float min, float max);
     //-----------------------------------------------------------
 } // namespace Core

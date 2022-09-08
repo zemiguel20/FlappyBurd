@@ -54,8 +54,7 @@ public:
         // Check to move first block to the back
         bool firstNotVisible =
             blocksTf[0].position.x <
-            -(Config::REF_SCREEN_W / 2) -
-                tex->Width() / 2 * blocksTf[0].scale;
+            -(Config::REF_SCREEN_W / 2) - 100.0f;
         if (firstNotVisible)
         {
             Transform2D block = blocksTf[0];

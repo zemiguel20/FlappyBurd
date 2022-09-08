@@ -18,6 +18,7 @@ void FlappyBurd::Start()
     cam = new Camera2D();
     bg = new Background();
     sgrnd = new ScrollingGround();
+    sbrrs = new ScrollingBarriers();
 
     Log::Info("FlappyBurd loaded");
 }
@@ -26,11 +27,13 @@ void FlappyBurd::Update()
 {
     player->Update();
     sgrnd->Update();
+    sbrrs->Update();
 }
 
 void FlappyBurd::Render()
 {
     bg->Render(*cam);
+    sbrrs->Render(*cam);
     sgrnd->Render(*cam);
     player->Render(*cam);
 }
@@ -42,5 +45,6 @@ void FlappyBurd::Close()
     delete player;
     delete cam;
     delete sgrnd;
+    delete sbrrs;
     Log::Info("FlappyBurd unloaded");
 }

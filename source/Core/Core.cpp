@@ -148,7 +148,7 @@ void Core::RenderSprite(
     dest.x = tf.position.x;
     dest.y = -(tf.position.y);
 
-    // Local texture origin is center of image 
+    // Local texture origin is center of image
     //(relative to top left corner)
     ::Vector2 origin;
     origin.x = dest.width * 0.5f;
@@ -172,11 +172,16 @@ float Core::Time::DeltaTime()
 //---------------------------------------------------------------
 
 //---------------------------------------------------------------
-// LOG
+// UTILITY
 //---------------------------------------------------------------
 void Core::Log::Info(const char *msg)
 {
     ::TraceLog(::LOG_INFO, msg);
+}
+
+float Core::Random(float min, float max)
+{
+    return ::GetRandomValue(min, max);
 }
 //---------------------------------------------------------------
 
