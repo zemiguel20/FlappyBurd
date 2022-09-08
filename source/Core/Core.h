@@ -143,6 +143,7 @@ namespace Core
         void *rl_texture; // raylib Texture data
 
     public:
+        // Loads a texture from a file
         Texture(const char *filepath);
         ~Texture();
 

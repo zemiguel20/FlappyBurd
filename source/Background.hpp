@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Core/Core.h"
+using namespace Core;
+
 class Background
 {
 private:

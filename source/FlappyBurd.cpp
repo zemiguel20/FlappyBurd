@@ -1,4 +1,5 @@
 #include "FlappyBurd.h"
+#include "Config.h"
 
 Core::App *Core::CreateApp()
 {
@@ -40,5 +41,6 @@ void FlappyBurd::Close()
     delete bg;
     delete player;
     delete cam;
+    delete sgrnd;
     Log::Info("FlappyBurd unloaded");
 }

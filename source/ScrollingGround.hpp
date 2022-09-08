@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Core/Core.h"
+using namespace Core;
+#include "Config.h"
 #include <vector>
 
 class ScrollingGround
