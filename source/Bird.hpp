@@ -7,25 +7,33 @@ using namespace Core;
 class Bird
 {
 private:
-    Transform2D tf; // Bird transform
-    Texture *tex;   // Bird texture
+    const float JUMP_SPEED = 500.0f;
+    const float GRAVITY = 1200.0f;
+    const float CEILING = 300.0f;
+    const Vector2 STARTING_POS = Vector2(-100.0f, 0.0f);
 
+    Transform2D tf;
     float vel;
+
+    Sound *jumpSound;
+    Sprite *sprite;
 
 public:
     Bird()
     {
-        tf = Transform2D(Vector2(-100.0f, 0.0f), 0.0f, 2.0f);
-        tex = new Texture("assets/burd.png");
-
+        tf = Transform2D(STARTING_POS, 0.0f, 2.0f);
         vel = 0.0f;
+
+        jumpSound = new Sound("assets/sfx_jump.mp3");
+        sprite = new Sprite("assets/burd.png");
 
         Log::Info("Bird loaded");
     };
 
     ~Bird()
     {
-        delete tex;
+        delete jumpSound;
+        delete sprite;
         Log::Info("Bird unloaded");
     };
 
@@ -34,12 +42,12 @@ public:
         // Jump
         if (Input::IsKeyPressed(Input::KEY_SPACE))
         {
-            vel = Config::BIRD_JUMP;
-            // TODO: PlaySound(jumpSound);
+            vel = JUMP_SPEED;
+            jumpSound->Play();
         }
 
         // Gravity
-        vel -= Config::BIRD_GRAVITY * Time::DeltaTime();
+        vel -= GRAVITY * Time::DeltaTime();
         // Apply velocity to position
         tf.position.y += vel * Time::DeltaTime();
 
@@ -49,20 +57,20 @@ public:
             player.rotation -= 360.0f;*/
 
         // Keep player from flapping infinitely
-        float ceiling = 300.0f;
-        if (tf.position.y > ceiling)
+        if (tf.position.y > CEILING)
         {
-            tf.position.y = ceiling;
+            tf.position.y = CEILING;
             vel = 0.0f;
         }
     };
 
     void Render(const Camera2D &cam)
     {
-        RenderSprite(cam, tf, *tex);
+        sprite->Render(tf, cam);
     };
+
     void Reset()
     {
-        // TODO: implement
+        tf.position = STARTING_POS;
     }
 };

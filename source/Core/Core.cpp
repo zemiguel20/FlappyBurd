@@ -115,6 +115,23 @@ void *Core::Texture::Data() const
 //---------------------------------------------------------------
 // RENDERING
 //---------------------------------------------------------------
+
+Core::Sprite::Sprite(const char *filepath)
+{
+    // TODO: implement
+}
+
+Core::Sprite::~Sprite()
+{
+    // TODO: implement
+}
+
+void Core::Sprite::Render(const Transform2D &tf,
+                          const Camera2D &cam)
+{
+    // TODO: implement
+}
+
 void Core::RenderSprite(
     const Core::Camera2D &cam,
     const Core::Transform2D &tf,

@@ -163,6 +163,16 @@ namespace Core
     // RENDERING
     //-----------------------------------------------------------
 
+    class Sprite
+    {
+    public:
+        // Loads sprite from a file
+        Sprite(const char *filepath);
+        ~Sprite();
+
+        void Render(const Transform2D &, const Camera2D &);
+    };
+
     // Uses given camera to render sprite
     void RenderSprite(const Camera2D &,
                       const Transform2D &,
@@ -221,7 +231,6 @@ namespace Core
         bool IsKeyPressed(KeyCode);
     } // namespace Input
     //-----------------------------------------------------------
-
 
     //-----------------------------------------------------------
     // SOUND
