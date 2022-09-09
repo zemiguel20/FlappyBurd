@@ -41,11 +41,12 @@ public:
 
     ~ScrollingBarriers()
     {
+        barriersTf.clear();
         delete tex;
         Log::Info("Scrolling barriers unloaded");
     };
 
-    void Update()
+    void Scroll()
     {
         // Move barriers
         for (Transform2D &tf : barriersTf)
@@ -90,4 +91,21 @@ public:
             RenderSprite(cam, botPart, *tex);
         }
     };
+
+    bool CheckGapPassed(const Bird &player)
+    {
+        // TODO: implement
+        return false;
+    };
+
+    bool CheckCollision(const Bird &player)
+    {
+        // TODO: implement
+        return false;
+    }
+
+    void Reset()
+    {
+        // TODO: implement
+    }
 };

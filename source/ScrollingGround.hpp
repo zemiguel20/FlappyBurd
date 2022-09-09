@@ -43,7 +43,7 @@ public:
         Log::Info("Scrolling Ground unloaded");
     };
 
-    void Update()
+    void Scroll()
     {
         // Move ground
         for (Transform2D &tf : blocksTf)
@@ -69,5 +69,11 @@ public:
     {
         for (Transform2D &tf : blocksTf)
             RenderSprite(cam, tf, *tex);
+    };
+
+    bool CheckCollision(const Bird &player)
+    {
+        // TODO: Implement
+        return false;
     };
 };

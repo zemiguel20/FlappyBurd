@@ -190,6 +190,21 @@ namespace Core
 
     // Get random number in range [min, max]
     float Random(float min, float max);
+
+    class Timer
+    {
+    private:
+        float timeCount;
+        float limit;
+
+    public:
+        Timer(float seconds) : timeCount(0.0f),
+                               limit(seconds){};
+
+        void Tick() { timeCount += Time::DeltaTime(); };
+        bool Finished() { return timeCount >= limit; };
+        void Reset() { timeCount = 0.0f; };
+    };
     //-----------------------------------------------------------
 
     //-----------------------------------------------------------
@@ -205,6 +220,21 @@ namespace Core
         // Check if a key has been pressed this frame
         bool IsKeyPressed(KeyCode);
     } // namespace Input
+    //-----------------------------------------------------------
+
+
+    //-----------------------------------------------------------
+    // SOUND
+    //-----------------------------------------------------------
+
+    class Sound
+    {
+    public:
+        Sound(const char *filepath);
+        ~Sound();
+
+        void Play();
+    };
     //-----------------------------------------------------------
 
 } // namespace Core

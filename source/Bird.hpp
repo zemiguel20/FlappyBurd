@@ -29,7 +29,7 @@ public:
         Log::Info("Bird unloaded");
     };
 
-    void Update()
+    void Move()
     {
         // Jump
         if (Input::IsKeyPressed(Input::KEY_SPACE))
@@ -61,4 +61,8 @@ public:
     {
         RenderSprite(cam, tf, *tex);
     };
+    void Reset()
+    {
+        // TODO: implement
+    }
 };

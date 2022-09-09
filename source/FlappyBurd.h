@@ -7,14 +7,40 @@ using namespace Core;
 #include "ScrollingGround.hpp"
 #include "ScrollingBarriers.hpp"
 
+#include "UI/RunUI.hpp"
+#include "UI/StartPanelUI.hpp"
+#include "UI/GameOverUI.hpp"
+
 class FlappyBurd : public App
 {
 private:
+    enum GameState
+    {
+        START,
+        RUNNING,
+        GAME_OVER
+    };
+
+    GameState state;
+
     Camera2D *cam;
     Bird *player;
     Background *bg;
-    ScrollingGround *sgrnd;
-    ScrollingBarriers *sbrrs;
+    ScrollingGround *ground;
+    ScrollingBarriers *barriers;
+
+    int score;
+    int highscore;
+    void LoadHighscore();
+    void SaveHighscore();
+
+    Sound *scoreSound;
+
+    Timer *startRunTimer;
+
+    StartPanelUI *startPanelUI;
+    RunUI *runUI;
+    GameOverUI *gameoverUI;
 
 public:
     void Start() override;
