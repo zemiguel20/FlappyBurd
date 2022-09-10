@@ -179,19 +179,20 @@ bool Core::Input::IsKeyPressed(Core::Input::KeyCode key)
 //---------------------------------------------------------------
 // SOUND
 //---------------------------------------------------------------
-Core::Sound::Sound(const char *filename)
+Core::Sound::Sound(const char *filepath)
 {
-    // TODO: implement
+    rl_sound = new ::Sound;
+    *(::Sound *)rl_sound = ::LoadSound(filepath);
 }
 
 Core::Sound::~Sound()
 {
-    // TODO: implement
+    delete (::Sound *)rl_sound;
 }
 
 void Core::Sound::Play()
 {
-    // TODO: implement
+    ::PlaySound(*(::Sound *)rl_sound);
 }
 //---------------------------------------------------------------
 

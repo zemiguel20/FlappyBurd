@@ -14,7 +14,6 @@ namespace Core
     // Provided Main creates app and calls functions.
     class App
     {
-        // TODO: use startup flags with defaults that can be overriden by derived
     public:
         // Initialize core systems (window, audio, etc.)
         // Returns success result of initialization
@@ -215,6 +214,9 @@ namespace Core
 
     class Sound
     {
+    private:
+        void *rl_sound;
+
     public:
         Sound(const char *filepath);
         ~Sound();
