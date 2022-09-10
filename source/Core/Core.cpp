@@ -189,6 +189,8 @@ Core::Sound::~Sound()
 {
     ::UnloadSound(*(::Sound *)rl_sound);
     delete (::Sound *)rl_sound;
+
+    Log::Info("SOUND: Unloaded sound");
 }
 
 void Core::Sound::Play()

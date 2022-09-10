@@ -21,6 +21,8 @@ private:
 public:
     Bird()
     {
+        Log::Info("Loading Bird...");
+
         tf = Transform2D(STARTING_POS, 0.0f, 2.0f);
         vel = 0.0f;
 
@@ -32,8 +34,11 @@ public:
 
     ~Bird()
     {
+        Log::Info("Unloading Bird...");
+
         delete jumpSound;
         delete sprite;
+
         Log::Info("Bird unloaded");
     };
 
