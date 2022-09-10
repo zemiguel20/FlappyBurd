@@ -175,7 +175,7 @@ namespace Core
     } // namespace Log
 
     // Get random number in range [min, max]
-    float Random(float min, float max);
+    int Random(int min, int max);
 
     class Timer
     {

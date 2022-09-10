@@ -161,7 +161,7 @@ void Core::Log::Info(const char *msg)
     ::TraceLog(::LOG_INFO, msg);
 }
 
-float Core::Random(float min, float max)
+int Core::Random(int min, int max)
 {
     return ::GetRandomValue(min, max);
 }
