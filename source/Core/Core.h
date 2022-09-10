@@ -139,32 +139,14 @@ namespace Core
     //-----------------------------------------------------------
 
     //-----------------------------------------------------------
-    // ASSETS
-    //-----------------------------------------------------------
-
-    // Texture class. Loaded from file to memory.
-    class Texture
-    {
-    private:
-        void *rl_texture; // raylib Texture data
-
-    public:
-        // Loads a texture from a file
-        Texture(const char *filepath);
-        ~Texture();
-
-        int Width() const;
-        int Height() const;
-        void *Data() const;
-    };
-    //-----------------------------------------------------------
-
-    //-----------------------------------------------------------
     // RENDERING
     //-----------------------------------------------------------
 
     class Sprite
     {
+    private:
+        void *rl_texture;
+
     public:
         // Loads sprite from a file
         Sprite(const char *filepath);
@@ -172,11 +154,6 @@ namespace Core
 
         void Render(const Transform2D &, const Camera2D &);
     };
-
-    // Uses given camera to render sprite
-    void RenderSprite(const Camera2D &,
-                      const Transform2D &,
-                      const Texture &);
     //-----------------------------------------------------------
 
     //-----------------------------------------------------------

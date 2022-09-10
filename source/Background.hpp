@@ -3,29 +3,30 @@
 #include "Core/Core.h"
 using namespace Core;
 
+// TODO: REVIEW IMPLEMENTATION
 class Background
 {
 private:
     Transform2D tf;
-    Texture *tex;
+    // Texture *tex;
 
 public:
     Background()
     {
         tf = Transform2D();
         tf.scale = 0.6f;
-        tex = new Texture("assets/background-day.png");
+        // tex = new Texture("assets/background-day.png");
         Log::Info("Background loaded");
     }
 
     ~Background()
     {
-        delete tex;
+        //delete tex;
         Log::Info("Background unloaded");
     }
 
     void Render(const Camera2D &cam)
     {
-        RenderSprite(cam, tf, *tex);
+        // RenderSprite(cam, tf, *tex);
     }
 };

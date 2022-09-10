@@ -5,16 +5,17 @@ using namespace Core;
 #include "Config.h"
 #include <vector>
 
+// TODO: REVIEW IMPLEMENTATION
 class ScrollingBarriers
 {
 private:
-    Texture *tex;
+    //Texture *tex;
     std::vector<Transform2D> barriersTf;
 
 public:
     ScrollingBarriers()
     {
-        tex = new Texture("assets/log.png");
+        //tex = new Texture("assets/log.png");
 
         // Base position off screen
         Transform2D base;
@@ -26,10 +27,10 @@ public:
         // Set each barrier with spacing and random Y
         for (int i = 0; i < barriersTf.size(); i++)
         {
-            barriersTf[i].position.x +=
-                i *
-                (tex->Width() * base.scale +
-                 Config::BARRIER_SPACING);
+            // barriersTf[i].position.x +=
+            //     i *
+            //     (tex->Width() * base.scale +
+            //      Config::BARRIER_SPACING);
 
             barriersTf[i].position.y =
                 Random(Config::BARRIER_MIN_SPAWN,
@@ -42,7 +43,7 @@ public:
     ~ScrollingBarriers()
     {
         barriersTf.clear();
-        delete tex;
+        //delete tex;
         Log::Info("Scrolling barriers unloaded");
     };
 
@@ -63,7 +64,7 @@ public:
             Transform2D barrier = barriersTf[0];
             // Set new X position with spacing
             barrier.position.x = barriersTf.back().position.x +
-                                 (tex->Width() * barrier.scale) +
+                                 //(tex->Width() * barrier.scale) +
                                  Config::BARRIER_SPACING;
             barrier.position.y =
                 Random(Config::BARRIER_MIN_SPAWN,
@@ -76,20 +77,20 @@ public:
 
     void Render(const Camera2D &cam)
     {
-        for (Transform2D &barrier : barriersTf)
-        {
-            float logPosOffset =
-                (Config::GAP_SIZE / 2) +
-                (tex->Height() / 2 * barrier.scale);
+        // for (Transform2D &barrier : barriersTf)
+        // {
+        //     float logPosOffset =
+        //         (Config::GAP_SIZE / 2) +
+        //         (tex->Height() / 2 * barrier.scale);
 
-            Transform2D topPart = barrier;
-            topPart.position.y += logPosOffset;
-            Transform2D botPart = barrier;
-            botPart.position.y -= logPosOffset;
+        //     Transform2D topPart = barrier;
+        //     topPart.position.y += logPosOffset;
+        //     Transform2D botPart = barrier;
+        //     botPart.position.y -= logPosOffset;
 
-            RenderSprite(cam, topPart, *tex);
-            RenderSprite(cam, botPart, *tex);
-        }
+        //     RenderSprite(cam, topPart, *tex);
+        //     RenderSprite(cam, botPart, *tex);
+        // }
     };
 
     bool CheckGapPassed(const Bird &player)
