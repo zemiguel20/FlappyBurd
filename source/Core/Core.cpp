@@ -187,6 +187,7 @@ Core::Sound::Sound(const char *filepath)
 
 Core::Sound::~Sound()
 {
+    ::UnloadSound(*(::Sound *)rl_sound);
     delete (::Sound *)rl_sound;
 }
 
