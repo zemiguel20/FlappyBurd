@@ -10,14 +10,18 @@ private:
     const float VELOCITY = -70.0f;
     const float SPACING = 270.0f;
     const float START_X = 360.0f;
-    const float X_LIMIT = -270.0f;
+    const float X_LIMIT = -220.0f;
     const float GAP_SIZE = 120.0f;
     const float MIN_Y_SPAWN = -150.0f;
     const float MAX_Y_SPAWN = 200.0f;
 
     std::vector<Transform2D> barriersTf;
 
+    RectCollider gapColl;
+
     Sprite *sprite;
+
+    bool passed;
 
 public:
     ScrollingBarriers()
@@ -40,6 +44,10 @@ public:
         }
 
         sprite = new Sprite("assets/log.png");
+
+        gapColl = RectCollider(2.0f, GAP_SIZE, Vector2(10.f, 0.0f));
+
+        passed = false;
 
         Log::Info("Scrolling barriers loaded");
     };
@@ -73,6 +81,9 @@ public:
 
             barriersTf.erase(barriersTf.begin());
             barriersTf.push_back(barrier);
+
+            // Reset barrier passed
+            passed = false;
         }
     };
 
@@ -91,12 +102,33 @@ public:
             sprite->Render(topPart, cam);
             sprite->Render(botPart, cam);
         }
+
+#ifdef DEBUG
+        gapColl.Render(barriersTf[0], cam);
+
+        DrawLine(Vector2(-500.0f, MAX_Y_SPAWN),
+                 Vector2(500.0f, MAX_Y_SPAWN),
+                 cam);
+
+        DrawLine(Vector2(-500.0f, MIN_Y_SPAWN),
+                 Vector2(500.0f, MIN_Y_SPAWN),
+                 cam);
+#endif
     };
 
     bool CheckGapPassed(const Bird &player)
     {
-        // TODO: implement
-        return false;
+        // Gap should only be passed once
+        // So if first gap passed, return false as if
+        // relative to the next one
+        // State is reset after first one is moved to back
+        if (passed)
+            return false;
+
+        passed = gapColl.CheckCollision(barriersTf[0],
+                                        player.coll,
+                                        player.tf);
+        return passed;
     };
 
     bool CheckCollision(const Bird &player)
