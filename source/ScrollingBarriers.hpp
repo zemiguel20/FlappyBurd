@@ -2,48 +2,55 @@
 
 #include "Core/Core.h"
 using namespace Core;
-#include "Config.h"
 #include <vector>
 
-// TODO: REVIEW IMPLEMENTATION
 class ScrollingBarriers
 {
 private:
-    //Texture *tex;
+    const float VELOCITY = -70.0f;
+    const float SPACING = 270.0f;
+    const float START_X = 360.0f;
+    const float X_LIMIT = -270.0f;
+    const float GAP_SIZE = 120.0f;
+    const float MIN_Y_SPAWN = -150.0f;
+    const float MAX_Y_SPAWN = 200.0f;
+
     std::vector<Transform2D> barriersTf;
+
+    Sprite *sprite;
 
 public:
     ScrollingBarriers()
     {
-        //tex = new Texture("assets/log.png");
+        Log::Info("Loading scrolling barriers");
 
         // Base position off screen
         Transform2D base;
         base.scale = 2.0f;
-        base.position.x = Config::REF_SCREEN_W;
+        base.position.x = START_X;
 
         barriersTf = {base, base};
 
         // Set each barrier with spacing and random Y
         for (int i = 0; i < barriersTf.size(); i++)
         {
-            // barriersTf[i].position.x +=
-            //     i *
-            //     (tex->Width() * base.scale +
-            //      Config::BARRIER_SPACING);
-
+            barriersTf[i].position.x += i * SPACING;
             barriersTf[i].position.y =
-                Random(Config::BARRIER_MIN_SPAWN,
-                       Config::BARRIER_MAX_SPAWN);
+                Random(MIN_Y_SPAWN, MAX_Y_SPAWN);
         }
+
+        sprite = new Sprite("assets/log.png");
 
         Log::Info("Scrolling barriers loaded");
     };
 
     ~ScrollingBarriers()
     {
+        Log::Info("Unloading scrolling barriers");
+
         barriersTf.clear();
-        //delete tex;
+        delete sprite;
+
         Log::Info("Scrolling barriers unloaded");
     };
 
@@ -52,23 +59,17 @@ public:
         // Move barriers
         for (Transform2D &tf : barriersTf)
         {
-            tf.position.x -= Config::SCROLL_VEL *
-                             Time::DeltaTime();
+            tf.position.x += VELOCITY * Time::DeltaTime();
         }
         // Check to move first block to the back
-        bool firstNotVisible =
-            barriersTf[0].position.x <
-            -(Config::REF_SCREEN_W / 2) - 50.0f;
-        if (firstNotVisible)
+        if (barriersTf[0].position.x < X_LIMIT)
         {
             Transform2D barrier = barriersTf[0];
             // Set new X position with spacing
             barrier.position.x = barriersTf.back().position.x +
-                                 //(tex->Width() * barrier.scale) +
-                                 Config::BARRIER_SPACING;
+                                 SPACING;
             barrier.position.y =
-                Random(Config::BARRIER_MIN_SPAWN,
-                       Config::BARRIER_MAX_SPAWN);
+                Random(MIN_Y_SPAWN, MAX_Y_SPAWN);
 
             barriersTf.erase(barriersTf.begin());
             barriersTf.push_back(barrier);
@@ -77,20 +78,19 @@ public:
 
     void Render(const Camera2D &cam)
     {
-        // for (Transform2D &barrier : barriersTf)
-        // {
-        //     float logPosOffset =
-        //         (Config::GAP_SIZE / 2) +
-        //         (tex->Height() / 2 * barrier.scale);
+        for (Transform2D &barrier : barriersTf)
+        {
+            float logPosOffset =
+                (GAP_SIZE * 0.5f) + (125.0f * barrier.scale);
 
-        //     Transform2D topPart = barrier;
-        //     topPart.position.y += logPosOffset;
-        //     Transform2D botPart = barrier;
-        //     botPart.position.y -= logPosOffset;
+            Transform2D topPart = barrier;
+            topPart.position.y += logPosOffset;
+            Transform2D botPart = barrier;
+            botPart.position.y -= logPosOffset;
 
-        //     RenderSprite(cam, topPart, *tex);
-        //     RenderSprite(cam, botPart, *tex);
-        // }
+            sprite->Render(topPart, cam);
+            sprite->Render(botPart, cam);
+        }
     };
 
     bool CheckGapPassed(const Bird &player)
