@@ -225,4 +225,29 @@ namespace Core
     };
     //-----------------------------------------------------------
 
+    //-----------------------------------------------------------
+    // COLLISION
+    //-----------------------------------------------------------
+
+    class RectCollider
+    {
+    public:
+        float width, height;
+        Vector2 offsetPos;
+
+        RectCollider()
+            : width(0.0f), height(0.0f), offsetPos(Vector2()){};
+
+        RectCollider(float width, float height, Vector2 offsetPos)
+            : width(width), height(height), offsetPos(offsetPos){};
+
+        bool CheckCollision(const Transform2D &tf,
+                            const RectCollider &otherCol,
+                            const Transform2D &otherTf);
+
+        // For visual debug
+        void Render(const Transform2D &, const Camera2D &);
+    };
+    //-----------------------------------------------------------
+
 } // namespace Core

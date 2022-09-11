@@ -1,5 +1,6 @@
 #pragma once
 
+#define DEBUG
 #include "Core/Core.h"
 using namespace Core;
 #include "Bird.hpp"

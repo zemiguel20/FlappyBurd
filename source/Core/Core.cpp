@@ -200,6 +200,69 @@ void Core::Sound::Play()
 //---------------------------------------------------------------
 
 //---------------------------------------------------------------
+// COLLISION
+//---------------------------------------------------------------
+bool Core::RectCollider::CheckCollision(const Transform2D &tf,
+                                        const RectCollider &otherCol,
+                                        const Transform2D &otherTf)
+{
+    ::Rectangle rect;
+    rect.width = width * tf.scale;
+    rect.height = height * tf.scale;
+    rect.x = -(rect.width * 0.5f) +
+             (offsetPos.x * tf.scale) +
+             tf.position.x;
+    rect.y = -(rect.height * 0.5f) +
+             (offsetPos.y * tf.scale) +
+             -(tf.position.y);
+
+    ::Rectangle otherRect;
+    otherRect.width = otherCol.width * otherTf.scale;
+    otherRect.height = otherCol.height * otherTf.scale;
+    otherRect.x = -(otherRect.width * 0.5f) +
+                  (otherCol.offsetPos.x * otherTf.scale) +
+                  otherTf.position.x;
+    otherRect.y = -(otherRect.height * 0.5f) +
+                  (otherCol.offsetPos.y * otherTf.scale) +
+                  -(otherTf.position.y);
+
+    return ::CheckCollisionRecs(rect, otherRect);
+};
+
+void Core::RectCollider::Render(const Transform2D &tf,
+                                const Camera2D &cam)
+{
+
+    // Create raylib camera object
+    ::Camera2D rl_cam;
+    rl_cam.offset.x = ::GetScreenWidth() / 2;
+    rl_cam.offset.y = ::GetScreenHeight() / 2;
+    rl_cam.target.x = cam.tf.position.x;
+    rl_cam.target.y = -(cam.tf.position.y);
+    rl_cam.rotation = cam.tf.rotation;
+    rl_cam.zoom = cam.tf.scale;
+
+    // Draw mode using 2D camera
+    ::BeginMode2D(rl_cam);
+
+    ::Rectangle rect;
+    rect.width = width * tf.scale;
+    rect.height = height * tf.scale;
+    rect.x = -(rect.width * 0.5f) +
+             (offsetPos.x * tf.scale) +
+             tf.position.x;
+    rect.y = -(rect.height * 0.5f) +
+             (offsetPos.y * tf.scale) +
+             -(tf.position.y);
+
+    ::DrawRectangleLinesEx(rect, 2.0f, ::PURPLE);
+
+    ::EndMode2D();
+};
+
+//---------------------------------------------------------------
+
+//---------------------------------------------------------------
 // MATH
 //---------------------------------------------------------------
 bool Core::Vector2::operator==(const Core::Vector2 &other)
