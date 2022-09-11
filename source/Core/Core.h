@@ -153,6 +153,9 @@ namespace Core
 
         void Render(const Transform2D &, const Camera2D &);
     };
+
+    // For debug
+    void DrawLine(Vector2 p1, Vector2 p2, const Camera2D &);
     //-----------------------------------------------------------
 
     //-----------------------------------------------------------

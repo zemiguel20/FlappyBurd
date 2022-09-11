@@ -142,6 +142,25 @@ void Core::Sprite::Render(const Transform2D &tf,
 
     ::EndMode2D();
 }
+
+void Core::DrawLine(Vector2 p1, Vector2 p2, const Camera2D &cam)
+{
+    // Create raylib camera object
+    ::Camera2D rl_cam;
+    rl_cam.offset.x = ::GetScreenWidth() / 2;
+    rl_cam.offset.y = ::GetScreenHeight() / 2;
+    rl_cam.target.x = cam.tf.position.x;
+    rl_cam.target.y = -(cam.tf.position.y);
+    rl_cam.rotation = cam.tf.rotation;
+    rl_cam.zoom = cam.tf.scale;
+
+    // Draw mode using 2D camera
+    ::BeginMode2D(rl_cam);
+
+    ::DrawLine(p1.x, -p1.y, p2.x, -p2.y, WHITE);
+
+    ::EndMode2D();
+}
 //---------------------------------------------------------------
 
 //---------------------------------------------------------------
