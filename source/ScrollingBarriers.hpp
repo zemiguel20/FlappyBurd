@@ -11,13 +11,15 @@ private:
     const float SPACING = 270.0f;
     const float START_X = 360.0f;
     const float X_LIMIT = -220.0f;
-    const float GAP_SIZE = 120.0f;
-    const float MIN_Y_SPAWN = -150.0f;
+    const float GAP_SIZE = 160.0f;
+    const float MIN_Y_SPAWN = -120.0f;
     const float MAX_Y_SPAWN = 200.0f;
 
     std::vector<Transform2D> barriersTf;
 
     RectCollider gapColl;
+    RectCollider topColl;
+    RectCollider botColl;
 
     Sprite *sprite;
 
@@ -35,19 +37,13 @@ public:
 
         barriersTf = {base, base};
 
-        // Set each barrier with spacing and random Y
-        for (int i = 0; i < barriersTf.size(); i++)
-        {
-            barriersTf[i].position.x += i * SPACING;
-            barriersTf[i].position.y =
-                Random(MIN_Y_SPAWN, MAX_Y_SPAWN);
-        }
-
         sprite = new Sprite("assets/log.png");
 
-        gapColl = RectCollider(2.0f, GAP_SIZE, Vector2(10.f, 0.0f));
+        gapColl = RectCollider(2.0f, 300.0f, Vector2(10.f, 0.0f));
+        topColl = RectCollider(26.0f, 248.0f, Vector2(0.0f, GAP_SIZE));
+        botColl = RectCollider(26.0f, 248.0f, Vector2(0.0f, -GAP_SIZE));
 
-        passed = false;
+        Reset();
 
         Log::Info("Scrolling barriers loaded");
     };
@@ -91,13 +87,10 @@ public:
     {
         for (Transform2D &barrier : barriersTf)
         {
-            float logPosOffset =
-                (GAP_SIZE * 0.5f) + (125.0f * barrier.scale);
-
             Transform2D topPart = barrier;
-            topPart.position.y += logPosOffset;
+            topPart.position.y += GAP_SIZE * barrier.scale;
             Transform2D botPart = barrier;
-            botPart.position.y -= logPosOffset;
+            botPart.position.y -= GAP_SIZE * barrier.scale;
 
             sprite->Render(topPart, cam);
             sprite->Render(botPart, cam);
@@ -105,6 +98,8 @@ public:
 
 #ifdef DEBUG
         gapColl.Render(barriersTf[0], cam);
+        topColl.Render(barriersTf[0], cam);
+        botColl.Render(barriersTf[0], cam);
 
         DrawLine(Vector2(-500.0f, MAX_Y_SPAWN),
                  Vector2(500.0f, MAX_Y_SPAWN),
@@ -133,12 +128,23 @@ public:
 
     bool CheckCollision(const Bird &player)
     {
-        // TODO: implement
-        return false;
+
+        return topColl.CheckCollision(barriersTf[0],
+                                      player.coll, player.tf) ||
+               botColl.CheckCollision(barriersTf[0],
+                                      player.coll, player.tf);
     }
 
     void Reset()
     {
-        // TODO: implement
+        // Set each barrier with spacing and random Y
+        for (int i = 0; i < barriersTf.size(); i++)
+        {
+            barriersTf[i].position.x = START_X + i * SPACING;
+            barriersTf[i].position.y =
+                Random(MIN_Y_SPAWN, MAX_Y_SPAWN);
+        }
+
+        passed = false;
     }
 };
