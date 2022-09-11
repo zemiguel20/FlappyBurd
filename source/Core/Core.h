@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ostream>
+#include <string>
 
 namespace Core
 {
@@ -99,6 +100,52 @@ namespace Core
     //-----------------------------------------------------------
 
     //-----------------------------------------------------------
+    // TIME
+    //-----------------------------------------------------------
+    namespace Time
+    {
+        // Get delta time between frames
+        float DeltaTime();
+    } // namespace Time
+    //-----------------------------------------------------------
+
+    //-----------------------------------------------------------
+    // UTILITY
+    //-----------------------------------------------------------
+    namespace Log
+    {
+        // Log a Info message to log file
+        void Info(const char *);
+    } // namespace Log
+
+    // Get random number in range [min, max]
+    int Random(int min, int max);
+
+    class Timer
+    {
+    private:
+        float timeCount;
+        float limit;
+
+    public:
+        Timer(float seconds) : timeCount(0.0f),
+                               limit(seconds){};
+
+        void Tick() { timeCount += Time::DeltaTime(); };
+        bool Finished() { return timeCount >= limit; };
+        void Reset() { timeCount = 0.0f; };
+    };
+
+    enum Color : unsigned int
+    {
+        WHITE = 0xFFFFFFFF,
+        RED = 0xFF0000FF,
+        YELLOW = 0xFDF900FF,
+        BROWN = 0x7F6A4FFF
+    };
+    //-----------------------------------------------------------
+
+    //-----------------------------------------------------------
     // TRANSFORM
     //-----------------------------------------------------------
 
@@ -156,44 +203,9 @@ namespace Core
 
     // For debug
     void DrawLine(Vector2 p1, Vector2 p2, const Camera2D &);
-    //-----------------------------------------------------------
 
-    //-----------------------------------------------------------
-    // TIME
-    //-----------------------------------------------------------
-    namespace Time
-    {
-        // Get delta time between frames
-        float DeltaTime();
-    } // namespace Time
-    //-----------------------------------------------------------
-
-    //-----------------------------------------------------------
-    // UTILITY
-    //-----------------------------------------------------------
-    namespace Log
-    {
-        // Log a Info message to log file
-        void Info(const char *);
-    } // namespace Log
-
-    // Get random number in range [min, max]
-    int Random(int min, int max);
-
-    class Timer
-    {
-    private:
-        float timeCount;
-        float limit;
-
-    public:
-        Timer(float seconds) : timeCount(0.0f),
-                               limit(seconds){};
-
-        void Tick() { timeCount += Time::DeltaTime(); };
-        bool Finished() { return timeCount >= limit; };
-        void Reset() { timeCount = 0.0f; };
-    };
+    void DrawRectangle(Vector2 topleft, Vector2 botright,
+                       Color color);
     //-----------------------------------------------------------
 
     //-----------------------------------------------------------
@@ -251,6 +263,40 @@ namespace Core
         // For visual debug
         void Render(const Transform2D &, const Camera2D &);
     };
+    //-----------------------------------------------------------
+
+    //-----------------------------------------------------------
+    // TEXT
+    //-----------------------------------------------------------
+
+    class Font
+    {
+    private:
+        void *rl_font;
+
+    public:
+        Font(const char *filepath);
+        ~Font();
+
+        void *Data();
+    };
+
+    class Text
+    {
+    public:
+        std::string text;
+        Font *font;
+        float size;
+        Color color;
+
+        Text(const char *text, Font &font,
+             float size, Color color)
+            : text(text), font(&font), size(size), color(color){};
+
+        // Render in screen coords
+        void Render(int x, int y);
+    };
+
     //-----------------------------------------------------------
 
 } // namespace Core

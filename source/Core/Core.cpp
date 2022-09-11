@@ -58,7 +58,7 @@ void Core::App::PrepareFrame()
 {
     // Set up a white canvas buffer
     BeginDrawing();
-    ClearBackground(RAYWHITE);
+    ClearBackground(::RAYWHITE);
 }
 
 void Core::App::FinishFrame()
@@ -157,9 +157,24 @@ void Core::DrawLine(Vector2 p1, Vector2 p2, const Camera2D &cam)
     // Draw mode using 2D camera
     ::BeginMode2D(rl_cam);
 
-    ::DrawLine(p1.x, -p1.y, p2.x, -p2.y, WHITE);
+    ::DrawLine(p1.x, -p1.y, p2.x, -p2.y, ::WHITE);
 
     ::EndMode2D();
+}
+
+void Core::DrawRectangle(Vector2 topleft, Vector2 botright,
+                         Color color)
+{
+    ::Color rl_color;
+    rl_color.r = (color & 0xFF000000) >> 24;
+    rl_color.g = (color & 0x00FF0000) >> 16;
+    rl_color.b = (color & 0x0000FF00) >> 8;
+    rl_color.a = (color & 0x000000FF);
+
+    ::DrawRectangle(topleft.x, topleft.y,
+                    (botright.x - topleft.x),
+                    (botright.y - topleft.y),
+                    rl_color);
 }
 //---------------------------------------------------------------
 
@@ -279,6 +294,47 @@ void Core::RectCollider::Render(const Transform2D &tf,
     ::EndMode2D();
 };
 
+//---------------------------------------------------------------
+
+//---------------------------------------------------------------
+// TEXT
+//---------------------------------------------------------------
+Core::Font::Font(const char *filepath)
+{
+    rl_font = new ::Font;
+    *(::Font *)rl_font = ::LoadFont(filepath);
+}
+
+Core::Font::~Font()
+{
+    ::UnloadFont(*(::Font *)rl_font);
+    delete (::Font *)rl_font;
+}
+
+void *Core::Font::Data()
+{
+    return (::Font *)rl_font;
+}
+
+void Core::Text::Render(int x, int y)
+{
+    ::Vector2 position;
+    position.x = x;
+    position.y = y;
+    ::Vector2 origin = ::MeasureTextEx(*(::Font *)font->Data(),
+                                       text.c_str(), size, 0.0f);
+    origin.x *= 0.5f;
+    origin.y *= 0.5f;
+
+    ::Color rl_color;
+    rl_color.r = (color & 0xFF000000) >> 24;
+    rl_color.g = (color & 0x00FF0000) >> 16;
+    rl_color.b = (color & 0x0000FF00) >> 8;
+    rl_color.a = (color & 0x000000FF);
+
+    DrawTextPro(*(::Font *)font->Data(), text.c_str(),
+                position, origin, 0.0f, size, 0.0f, rl_color);
+}
 //---------------------------------------------------------------
 
 //---------------------------------------------------------------

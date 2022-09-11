@@ -1,27 +1,25 @@
 #pragma once
 
-#define DEBUG
+//#define DEBUG
 #include "Core/Core.h"
 using namespace Core;
+
+enum GameState
+{
+    START,
+    RUNNING,
+    GAME_OVER
+};
+
 #include "Bird.hpp"
 #include "Background.hpp"
 #include "ScrollingGround.hpp"
 #include "ScrollingBarriers.hpp"
-
-#include "UI/RunUI.hpp"
-#include "UI/StartPanelUI.hpp"
-#include "UI/GameOverUI.hpp"
+#include "UI.hpp"
 
 class FlappyBurd : public App
 {
 private:
-    enum GameState
-    {
-        START,
-        RUNNING,
-        GAME_OVER
-    };
-
     GameState state;
 
     Camera2D *cam;
@@ -39,9 +37,7 @@ private:
 
     Timer *startRunTimer;
 
-    StartPanelUI *startPanelUI;
-    RunUI *runUI;
-    GameOverUI *gameoverUI;
+    UI *ui;
 
 public:
     void Start() override;

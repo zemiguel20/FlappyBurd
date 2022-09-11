@@ -34,6 +34,8 @@ void FlappyBurd::Start()
     // Start game start cooldown timer
     startRunTimer = new Timer(1.0f);
 
+    ui = new UI(state, *startRunTimer, score, highscore);
+
     Log::Info("FlappyBurd loaded");
 }
 
@@ -58,6 +60,9 @@ void FlappyBurd::Close()
 
     // Delete timer
     delete startRunTimer;
+
+    // Unload UI
+    delete ui;
 
     Log::Info("FlappyBurd unloaded");
 }
@@ -113,13 +118,7 @@ void FlappyBurd::Render()
     barriers->Render(*cam);
     ground->Render(*cam);
     player->Render(*cam);
-
-    if (state == START)
-        startPanelUI->Render();
-    else if (state == RUNNING)
-        runUI->Render();
-    else if (state == GAME_OVER)
-        gameoverUI->Render();
+    ui->Render();
 }
 
 void FlappyBurd::LoadHighscore()
