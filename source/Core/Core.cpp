@@ -4,6 +4,12 @@
 #define RAYMATH_IMPLEMENTATION
 #include <raymath.h>
 
+#ifndef DEBUG // Hide console in Release
+#ifdef _WIN32
+#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
+#endif
+#endif
+
 //---------------------------------------------------------------
 // ENTRY POINT
 //---------------------------------------------------------------
@@ -19,6 +25,9 @@ int main()
             app->PrepareFrame();
             app->Update();
             app->Render();
+#ifdef DEBUG
+            ::DrawFPS(0, 0);
+#endif
             app->FinishFrame();
         }
         app->Close();

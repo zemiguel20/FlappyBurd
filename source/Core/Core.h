@@ -3,6 +3,9 @@
 #include <ostream>
 #include <string>
 
+// USE THIS DEFINE TO SWITCH BETWEEN DEBUG AND RELEASE
+//#define DEBUG
+
 namespace Core
 {
     //-----------------------------------------------------------
