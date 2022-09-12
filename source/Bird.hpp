@@ -2,7 +2,6 @@
 
 #include "Core/Core.h"
 using namespace Core;
-#include "Config.h"
 
 class Bird
 {

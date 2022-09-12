@@ -143,6 +143,11 @@ namespace Core
         YELLOW = 0xFDF900FF,
         BROWN = 0x7F6A4FFF
     };
+
+    bool FileExists(const char *filepath);
+    char *LoadFileText(const char *filename);
+    void UnloadFileText(char *text);
+    bool SaveFileText(const char *fileName, char *text);
     //-----------------------------------------------------------
 
     //-----------------------------------------------------------

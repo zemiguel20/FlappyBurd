@@ -199,6 +199,26 @@ int Core::Random(int min, int max)
 {
     return ::GetRandomValue(min, max);
 }
+
+bool Core::FileExists(const char *filepath)
+{
+    return ::FileExists(filepath);
+}
+
+char *Core::LoadFileText(const char *filename)
+{
+    return ::LoadFileText(filename);
+}
+
+void Core::UnloadFileText(char *text)
+{
+    ::UnloadFileText(text);
+}
+
+bool Core::SaveFileText(const char *fileName, char *text)
+{
+    return ::SaveFileText(fileName, text);
+}
 //---------------------------------------------------------------
 
 //---------------------------------------------------------------

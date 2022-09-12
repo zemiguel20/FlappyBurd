@@ -1,5 +1,6 @@
 #include "FlappyBurd.h"
-#include "Config.h"
+
+#include <charconv>
 
 Core::App *Core::CreateApp()
 {
@@ -10,7 +11,7 @@ void FlappyBurd::Start()
 {
     Log::Info("Loading FlappyBurd...");
     // Setup window
-    SetWindowSize(Config::REF_SCREEN_W, Config::REF_SCREEN_H);
+    SetWindowSize(360, 640);
     SetWindowTitle("FlappyBurd");
 
     // Create camera
@@ -123,10 +124,21 @@ void FlappyBurd::Render()
 
 void FlappyBurd::LoadHighscore()
 {
-    // TODO: implement
+    if (FileExists("highscore.txt"))
+    {
+        char *text = LoadFileText("highscore.txt");
+        highscore = std::atoi(text);
+        UnloadFileText(text);
+    }
+    else
+    {
+        highscore = 0;
+    }
 }
 
 void FlappyBurd::SaveHighscore()
 {
-    // TODO: implement
+    char text[10];
+    std::to_chars(text, text + 10, highscore);
+    SaveFileText("highscore.txt", text);
 }
